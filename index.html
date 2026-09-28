@@ -135,17 +135,46 @@
   <button class="nav-item" data-screen="settings"><span>⚙</span><small>Settings</small></button>
 </nav>
 </div>
+<div id="previewModal" class="preview-modal" aria-hidden="true">
+  <div class="preview-backdrop" data-close-preview></div>
+  <div class="preview-sheet">
+    <div class="preview-top"><strong>Document preview</strong><button type="button" class="icon-button" data-close-preview>×</button></div>
+    <div id="previewPaper" class="preview-paper"></div>
+    <div class="preview-actions">
+      <button type="button" class="full-button" id="downloadPdf">Download / Save PDF</button>
+      <button type="button" class="secondary-button" id="shareWhatsApp">Send on WhatsApp</button>
+      <button type="button" class="secondary-button" data-close-preview>Close</button>
+    </div>
+  </div>
+</div>
 <div id="toast" class="toast" role="status"></div>
 <script>
 (function(){
 "use strict";
 var KEY="swiftSlipV2";
 var state={activeScreen:"home",editorType:"receipt",docTab:"receipt",counters:{receipt:1,invoice:1,quote:1},documents:[],customers:[],business:{name:"",phone:"",email:"",address:"",tin:"",reg:"",currency:"NGN"},items:[]};
+var lastPreview=null;
 try{var old=JSON.parse(localStorage.getItem(KEY));if(old)state=Object.assign(state,old)}catch(e){}
 function $(id){return document.getElementById(id)}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
-function money(n){n=Number(n)||0;var c=state.business.currency||"NGN";return new Intl.NumberFormat("en",{style:"currency",currency:c}).format(n)}
-function esc(s){return String(s||"").replace(/[&<>"]/g,function(x){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[x]})}
+function money(n){n=Number(n)||0;var c=state.business.currency||"NGN";try{return new Intl.NumberFormat("en-NG",{style:"currency",currency:c}).format(n)}catch(e){return c+" "+n.toFixed(2)}}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(x){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[x]})}
+function numberWords(n){
+ n=Math.floor(Number(n)||0);
+ var ones=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
+ var tens=["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+ function under1000(x){var s="";if(x>=100){s+=ones[Math.floor(x/100)]+" hundred";x%=100;if(x)s+=" and "}if(x>=20){s+=tens[Math.floor(x/10)];if(x%10)s+="-"+ones[x%10]}else if(x)s+=ones[x];return s||"zero"}
+ if(n===0)return "zero";
+ var parts=[];var units=[["billion",1000000000],["million",1000000],["thousand",1000],["",1]];
+ units.forEach(function(u){if(n>=u[1]){var q=Math.floor(n/u[1]);parts.push(under1000(q)+(u[0]?" "+u[0]:""));n%=u[1]}});
+ return parts.join(" ");
+}
+function amountWords(n){
+ var whole=Math.floor(Number(n)||0),cur=state.business.currency||"NGN";
+ var names={NGN:["Naira","Kobo"],USD:["Dollar","Cent"],GBP:["Pound","Pence"],EUR:["Euro","Cents"],CAD:["Canadian Dollar","Cents"],AUD:["Australian Dollar","Cents"],GHS:["Cedi","Pesewas"],KES:["Shilling","Cents"]};
+ var x=names[cur]||[cur,"Cents"],minor=Math.round(((Number(n)||0)-whole)*100);
+ return numberWords(whole)+" "+x[0]+(minor?" and "+numberWords(minor)+" "+x[1]:"")+" Only";
+}
 function screen(name){
  document.querySelectorAll(".screen").forEach(function(x){x.classList.remove("active")});
  var el=$(name+"Screen");if(el)el.classList.add("active");
@@ -171,22 +200,18 @@ function renderItems(){
 function calculateTotal(){
  var sub=state.items.reduce(function(a,it){return a+(Number(it.qty)||0)*(Number(it.price)||0)},0);
  var discount=Number($("discount")&&$("discount").value)||0,tax=Number($("tax")&&$("tax").value)||0,total=Math.max(0,sub-discount+tax);
- if($("subtotal"))$("subtotal").textContent=money(sub);
- if($("total"))$("total").textContent=money(total);
- if($("discountCurrency"))$("discountCurrency").textContent=(money(0).match(/^[^0-9-]+/)||[""])[0];
- if($("taxCurrency"))$("taxCurrency").textContent=(money(0).match(/^[^0-9-]+/)||[""])[0];
- if($("amountWords"))$("amountWords").textContent="Amount: "+money(total);
+ if($("subtotal"))$("subtotal").textContent=money(sub);if($("total"))$("total").textContent=money(total);
+ var sym=money(0).replace(/[0-9.,\s]/g,"");if($("discountCurrency"))$("discountCurrency").textContent=sym;if($("taxCurrency"))$("taxCurrency").textContent=sym;
+ if($("amountWords"))$("amountWords").textContent=amountWords(total);
  return {sub:sub,discount:discount,tax:tax,total:total};
 }
 function fillBusiness(){
  var b=state.business||{};
- ["businessName","businessPhone","businessEmail","businessAddress","businessTin","businessReg"].forEach(function(id){if($(id))$(id).value=b[{businessName:"name",businessPhone:"phone",businessEmail:"email",businessAddress:"address",businessTin:"tin",businessReg:"reg"}[id]]||""});
- if($("settingsBusinessName"))$("settingsBusinessName").value=b.name||"";
- if($("settingsBusinessPhone"))$("settingsBusinessPhone").value=b.phone||"";
- if($("settingsBusinessEmail"))$("settingsBusinessEmail").value=b.email||"";
- if($("settingsBusinessAddress"))$("settingsBusinessAddress").value=b.address||"";
- if($("settingsBusinessTin"))$("settingsBusinessTin").value=b.tin||"";
- if($("settingsBusinessReg"))$("settingsBusinessReg").value=b.reg||"";
+ var map={businessName:"name",businessPhone:"phone",businessEmail:"email",businessAddress:"address",businessTin:"tin",businessReg:"reg"};
+ Object.keys(map).forEach(function(id){if($(id))$(id).value=b[map[id]]||""});
+ if($("settingsBusinessName"))$("settingsBusinessName").value=b.name||"";if($("settingsBusinessPhone"))$("settingsBusinessPhone").value=b.phone||"";
+ if($("settingsBusinessEmail"))$("settingsBusinessEmail").value=b.email||"";if($("settingsBusinessAddress"))$("settingsBusinessAddress").value=b.address||"";
+ if($("settingsBusinessTin"))$("settingsBusinessTin").value=b.tin||"";if($("settingsBusinessReg"))$("settingsBusinessReg").value=b.reg||"";
  if($("settingsCurrency"))$("settingsCurrency").value=b.currency||"NGN";
 }
 function saveBusiness(){
@@ -196,18 +221,48 @@ function saveBusiness(){
 function saveDocument(){
  var type=state.editorType||"receipt",calc=calculateTotal();
  var doc={id:Date.now(),type:type,number:$("documentNumber")?.value||nextNumber(type),date:new Date().toISOString(),business:Object.assign({},state.business),customer:{name:$("customerNameQuick")?.value.trim()||$("customerName")?.value.trim()||"",phone:$("customerPhone")?.value.trim()||"",email:$("customerEmail")?.value.trim()||"",address:$("customerAddress")?.value.trim()||"",tin:$("customerTin")?.value.trim()||""},items:JSON.parse(JSON.stringify(state.items)),po:$("poNumber")?.value.trim()||"",reference:$("referenceNumber")?.value.trim()||"",dueDate:$("dueDate")?.value||"",paymentTerms:$("paymentTerms")?.value.trim()||"",paymentMethod:$("paymentMethod")?.value||"",paymentStatus:$("paymentStatus")?.value||"Paid",notes:$("notes")?.value.trim()||"",subtotal:calc.sub,discount:calc.discount,tax:calc.tax,total:calc.total};
- state.documents.unshift(doc);state.counters[type]=(state.counters[type]||1)+1;save();renderDocuments();
- alert(type.charAt(0).toUpperCase()+type.slice(1)+" "+doc.number+" created successfully.");
- screen("documents");
+ state.documents.unshift(doc);state.counters[type]=(state.counters[type]||1)+1;save();renderDocuments();renderRecent();showPreview(doc);
 }
 function renderDocuments(){
  var box=$("documentsList");if(!box)return;
  var list=state.documents.filter(function(d){return !state.docTab||d.type===state.docTab});
- box.innerHTML=list.length?list.map(function(d){return '<div class="list-row"><div><strong>'+esc(d.number)+'</strong><span>'+esc(d.customer.name||"No customer")+'</span></div><strong>'+esc(money(d.total))+'</strong></div>'}).join(""):'<div class="empty-state">No '+esc(state.docTab||"")+' documents yet.</div>';
+ box.innerHTML=list.length?list.map(function(d){return '<div class="list-row"><button type="button" class="doc-open" data-preview-id="'+d.id+'"><span><strong>'+esc(d.number)+'</strong><small>'+esc(d.customer.name||"No customer")+'</small></span><strong>'+esc(money(d.total))+'</strong></button></div>'}).join(""):'<div class="empty-state">No '+esc(state.docTab||"")+' documents yet.</div>';
+}
+function renderRecent(){
+ var box=$("recentList");if(!box)return;
+ var list=state.documents.slice(0,4);
+ box.innerHTML=list.length?list.map(function(d){return '<div class="list-row"><button type="button" class="doc-open" data-preview-id="'+d.id+'"><span><strong>'+esc(d.number)+'</strong><small>'+esc(d.type)+' · '+esc(d.customer.name||"No customer")+'</small></span><strong>'+esc(money(d.total))+'</strong></button></div>'}).join(""):'<div class="empty-state">No documents yet. Your latest slips will appear here.</div>';
 }
 function renderCustomers(){
  var box=$("customerList");if(!box)return;
  box.innerHTML=state.customers.length?state.customers.map(function(c,i){return '<div class="list-row"><span>'+esc(c.name||c)+'</span><button data-delete-customer="'+i+'">Delete</button></div>'}).join(""):'<div class="empty-state">No customers saved yet.</div>';
+}
+function previewHtml(d){
+ var b=d.business||{},c=d.customer||{},title=d.type==="receipt"?"RECEIPT":d.type==="invoice"?"INVOICE":"QUOTE";
+ var rows=(d.items||[]).map(function(it){return '<tr><td>'+esc(it.name||"Item / service")+'</td><td class="num">'+esc(it.qty||1)+'</td><td class="num">'+esc(money(it.price))+'</td><td class="num">'+esc(money((Number(it.qty)||0)*(Number(it.price)||0)))+'</td></tr>'}).join("");
+ return '<div class="paper-head"><div><h2>'+esc(b.name||"Your Business")+'</h2><p>'+esc(b.address||"")+'</p><p>'+esc(b.phone||"")+(b.email?" · "+esc(b.email):"")+'</p>'+(b.tin?'<p>TIN: '+esc(b.tin)+'</p>':"")+(b.reg?'<p>RC/BN: '+esc(b.reg)+'</p>':"")+'</div><div class="doc-title"><strong>'+title+'</strong><span>'+esc(d.number)+'</span><span>'+new Date(d.date).toLocaleDateString()+'</span></div></div>'+
+ '<div class="paper-customer"><strong>'+(d.type==="receipt"?"Received from":"Bill to")+'</strong><p>'+esc(c.name||"Walk-in customer")+'</p>'+(c.phone?'<span>'+esc(c.phone)+'</span>':"")+(c.address?'<span>'+esc(c.address)+'</span>':"")+'</div>'+
+ '<table><thead><tr><th>Item / Service</th><th>Qty</th><th>Unit</th><th>Amount</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+ '<div class="paper-totals"><div><span>Subtotal</span><strong>'+money(d.subtotal)+'</strong></div><div><span>Discount</span><strong>'+money(d.discount)+'</strong></div><div><span>Tax / VAT</span><strong>'+money(d.tax)+'</strong></div><div class="total-line"><span>Total</span><strong>'+money(d.total)+'</strong></div><p>'+esc(amountWords(d.total))+'</p></div>'+
+ (d.paymentMethod?'<p><strong>Payment method:</strong> '+esc(d.paymentMethod)+(d.paymentStatus?' · '+esc(d.paymentStatus):"")+'</p>':"")+
+ (d.po?'<p><strong>PO:</strong> '+esc(d.po)+'</p>':"")+(d.reference?'<p><strong>Reference:</strong> '+esc(d.reference)+'</p>':"")+
+ (d.notes?'<div class="paper-notes"><strong>Notes</strong><p>'+esc(d.notes)+'</p></div>':"")+
+ '<div class="paper-footer">Thank you for your business.</div>';
+}
+function showPreview(d){
+ lastPreview=d;$("previewPaper").innerHTML=previewHtml(d);$("previewModal").classList.add("show");$("previewModal").setAttribute("aria-hidden","false");
+}
+function closePreview(){$("previewModal").classList.remove("show");$("previewModal").setAttribute("aria-hidden","true")}
+function printPdf(){
+ if(!lastPreview)return;
+ var w=window.open("","_blank");if(!w){alert("Allow pop-ups to save the PDF.");return}
+ w.document.write('<!doctype html><html><head><title>'+esc(lastPreview.number)+'</title><style>body{font-family:Arial,sans-serif;margin:30px;color:#17201b}.paper{max-width:760px;margin:auto}.paper-head{display:flex;justify-content:space-between;border-bottom:2px solid #17201b;padding-bottom:20px}.doc-title{text-align:right}.doc-title strong{display:block;font-size:25px}.paper-customer{padding:18px 0}.paper-customer p{margin:5px 0;font-weight:700}.paper-customer span{display:block;font-size:13px;color:#555}table{width:100%;border-collapse:collapse}th,td{padding:10px 7px;border-bottom:1px solid #ddd;text-align:left}.num{text-align:right}.paper-totals{margin:22px 0 0 auto;max-width:330px}.paper-totals div{display:flex;justify-content:space-between;padding:5px}.total-line{border-top:2px solid #17201b;margin-top:7px;padding-top:10px;font-size:19px}.paper-totals p{font-size:13px}.paper-notes{margin-top:20px;padding:12px;background:#f5f6f5}.paper-footer{text-align:center;margin-top:35px;font-size:13px;color:#666}@media print{button{display:none}}</style></head><body><div class="paper">'+previewHtml(lastPreview)+'</div><script>window.onload=function(){window.print()}<\/script></body></html>');w.document.close()
+}
+function whatsapp(){
+ if(!lastPreview)return;
+ var d=lastPreview,b=d.business||{},c=d.customer||{};
+ var msg="Hello "+(c.name||"")+",\n\nPlease find your "+d.type+" "+d.number+" from "+(b.name||"our business")+".\nTotal: "+money(d.total)+"\n\nThank you.";
+ window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
 }
 document.addEventListener("click",function(ev){
  var nav=ev.target.closest("[data-screen]");if(nav){ev.preventDefault();screen(nav.dataset.screen);return}
@@ -219,18 +274,18 @@ document.addEventListener("click",function(ev){
  var rem=ev.target.closest("[data-remove]");if(rem){state.items.splice(Number(rem.dataset.remove),1);if(!state.items.length)state.items.push({name:"",qty:1,price:""});renderItems();calculateTotal();return}
  if(ev.target.closest("#saveDocument")){saveDocument();return}
  if(ev.target.closest("#saveBusinessProfile")){saveBusiness();return}
+ if(ev.target.closest("#downloadPdf")){printPdf();return}
+ if(ev.target.closest("#shareWhatsApp")){whatsapp();return}
+ if(ev.target.closest("[data-close-preview]")){closePreview();return}
+ var pv=ev.target.closest("[data-preview-id]");if(pv){var found=state.documents.find(function(d){return String(d.id)===String(pv.dataset.previewId)});if(found)showPreview(found);return}
  if(ev.target.closest("#addCustomer")){var v=$("newCustomer")?.value.trim();if(v){state.customers.push({name:v});$("newCustomer").value="";save();renderCustomers()}return}
  var del=ev.target.closest("[data-delete-customer]");if(del){state.customers.splice(Number(del.dataset.deleteCustomer),1);save();renderCustomers();return}
 });
-document.addEventListener("input",function(ev){
- var t=ev.target;
- if(t.dataset.item){state.items[Number(t.dataset.index)][t.dataset.item]=t.value;calculateTotal()}
- if(t.id==="discount"||t.id==="tax")calculateTotal();
-});
+document.addEventListener("input",function(ev){var t=ev.target;if(t.dataset.item){state.items[Number(t.dataset.index)][t.dataset.item]=t.value;calculateTotal()}if(t.id==="discount"||t.id==="tax")calculateTotal()});
 document.addEventListener("change",function(ev){if(ev.target.id==="settingsCurrency"){state.business.currency=ev.target.value;save();calculateTotal()}});
-function init(){fillBusiness();renderDocuments();renderCustomers();screen(state.activeScreen||"home");}
+function init(){fillBusiness();renderDocuments();renderRecent();renderCustomers();screen(state.activeScreen||"home")}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
-</script>
+</script>>
 </body>
 </html>
