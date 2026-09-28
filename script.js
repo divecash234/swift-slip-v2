@@ -10,13 +10,22 @@ const currencyMeta={
  KES:{symbol:"KSh",name:"Kenyan Shillings",minor:"Cents",locale:"en-KE"}
 };
 const defaultBusiness={name:"",phone:"",email:"",address:"",tin:"",reg:"",currency:"NGN",logo:"",signature:""};
-const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
+let saved=null;
+try{
+  const raw=localStorage.getItem(STORAGE_KEY);
+  saved=raw?JSON.parse(raw):null;
+}catch(error){
+  console.warn("Swift Slip local data was invalid; starting with a clean state.",error);
+  localStorage.removeItem(STORAGE_KEY);
+}
 const state=saved||{activeScreen:"home",editorType:"receipt",docTab:"receipt",counters:{receipt:1,invoice:1,quote:1},documents:[],customers:[],business:{...defaultBusiness},stock:[{name:"AGO (Diesel)",unit:"Litres",quantity:0,max:1000},{name:"Fuel",unit:"Litres",quantity:0,max:1000}],items:[]};
 state.business={...defaultBusiness,...(state.business||{})};
 state.counters={receipt:1,invoice:1,quote:1,...(state.counters||{})};
-state.documents=state.documents||[];state.customers=state.customers||[];
+state.documents=Array.isArray(state.documents)?state.documents:[];
+state.customers=Array.isArray(state.customers)?state.customers:[];
+state.stock=Array.isArray(state.stock)?state.stock:[{name:"AGO (Diesel)",unit:"Litres",quantity:0,max:1000},{name:"Fuel",unit:"Litres",quantity:0,max:1000}];
 const $=id=>document.getElementById(id);
-function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
+function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(error){console.warn("Could not save Swift Slip state.",error)}}
 function meta(){return currencyMeta[state.business.currency]||currencyMeta.NGN}
 function money(n){return new Intl.NumberFormat(meta().locale,{style:"currency",currency:state.business.currency,minimumFractionDigits:2}).format(Number(n)||0)}
 function numberWords(n){
