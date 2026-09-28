@@ -138,6 +138,10 @@
 <div id="toast" class="toast" role="status"></div>
 <script src="script.js?v=20260928"></script>
 <script>
+document.addEventListener("click",function(e){
+  var nav=e.target.closest("[data-screen]");
+  if(nav){e.preventDefault();swiftNavigate(nav.getAttribute("data-screen"))}
+});
 function swiftNavigate(name){
   document.querySelectorAll(".screen").forEach(function(s){s.classList.remove("active")});
   var screen=document.getElementById(name+"Screen");
