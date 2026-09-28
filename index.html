@@ -144,37 +144,92 @@ var state={activeScreen:"home",editorType:"receipt",docTab:"receipt",counters:{r
 try{var old=JSON.parse(localStorage.getItem(KEY));if(old)state=Object.assign(state,old)}catch(e){}
 function $(id){return document.getElementById(id)}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function money(n){n=Number(n)||0;var c=state.business.currency||"NGN";return new Intl.NumberFormat("en",{style:"currency",currency:c}).format(n)}
+function esc(s){return String(s||"").replace(/[&<>"]/g,function(x){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[x]})}
 function screen(name){
  document.querySelectorAll(".screen").forEach(function(x){x.classList.remove("active")});
  var el=$(name+"Screen");if(el)el.classList.add("active");
- document.querySelectorAll(".nav-item").forEach(function(x){x.classList.toggle("active",x.dataset.screen===name)});
- var titles={home:["Good morning.","Pick what you need below."],documents:["Your documents","Keep receipts, invoices and quotes in one place."],customers:["Customers","Save customer details so you don't have to type them every time."],stock:["Stock","Keep a simple view of what you sell and what is left."],settings:["Settings","Set up your business once. Swift Slip uses it on your documents."]};
- if(titles[name]&&$("pageTitle")){$("pageTitle").textContent=titles[name][0];$("pageSubtitle").textContent=titles[name][1]}
+ document.querySelectorAll("[data-screen]").forEach(function(x){x.classList.toggle("active",x.dataset.screen===name)});
  state.activeScreen=name;save();window.scrollTo(0,0);
 }
+function nextNumber(type){var p=type==="receipt"?"RCT":type==="invoice"?"INV":"QUO";return p+"-"+String(state.counters[type]||1).padStart(4,"0")}
 function editor(type){
- state.editorType=type;
- var n=type==="receipt"?"RCT":type==="invoice"?"INV":"QUO";
- var num=n+"-"+String(state.counters[type]||1).padStart(4,"0");
- state.counters[type]=(state.counters[type]||1)+1;
+ state.editorType=type;state.items=[{name:"",qty:1,price:""}];
  if($("editorLabel"))$("editorLabel").textContent=type.charAt(0).toUpperCase()+type.slice(1);
  if($("saveType"))$("saveType").textContent=type;
- if($("documentNumber"))$("documentNumber").value=num;
+ if($("documentNumber"))$("documentNumber").value=nextNumber(type);
+ if($("customerLabel"))$("customerLabel").textContent=type==="receipt"?"Received from":"Bill to";
  document.querySelectorAll("[data-editor-type]").forEach(function(x){x.classList.toggle("active",x.dataset.editorType===type)});
  document.querySelectorAll(".screen").forEach(function(x){x.classList.remove("active")});
  if($("editorScreen"))$("editorScreen").classList.add("active");
- if($("pageTitle"))$("pageTitle").textContent="Create document";
- if($("pageSubtitle"))$("pageSubtitle").textContent="Your saved business details are already applied.";
- save();
+ renderItems();calculateTotal();
+}
+function renderItems(){
+ var box=$("items");if(!box)return;
+ box.innerHTML=state.items.map(function(it,i){return '<div class="item-row"><input data-item="name" data-index="'+i+'" placeholder="Item or service" value="'+esc(it.name)+'"><input data-item="qty" data-index="'+i+'" inputmode="decimal" type="number" min="1" value="'+(it.qty||1)+'"><input data-item="price" data-index="'+i+'" inputmode="decimal" placeholder="Unit price" value="'+esc(it.price)+'"><button type="button" data-remove="'+i+'">×</button></div>'}).join("");
+}
+function calculateTotal(){
+ var sub=state.items.reduce(function(a,it){return a+(Number(it.qty)||0)*(Number(it.price)||0)},0);
+ var discount=Number($("discount")&&$("discount").value)||0,tax=Number($("tax")&&$("tax").value)||0,total=Math.max(0,sub-discount+tax);
+ if($("subtotal"))$("subtotal").textContent=money(sub);
+ if($("total"))$("total").textContent=money(total);
+ if($("discountCurrency"))$("discountCurrency").textContent=(money(0).match(/^[^0-9-]+/)||[""])[0];
+ if($("taxCurrency"))$("taxCurrency").textContent=(money(0).match(/^[^0-9-]+/)||[""])[0];
+ if($("amountWords"))$("amountWords").textContent="Amount: "+money(total);
+ return {sub:sub,discount:discount,tax:tax,total:total};
+}
+function fillBusiness(){
+ var b=state.business||{};
+ ["businessName","businessPhone","businessEmail","businessAddress","businessTin","businessReg"].forEach(function(id){if($(id))$(id).value=b[{businessName:"name",businessPhone:"phone",businessEmail:"email",businessAddress:"address",businessTin:"tin",businessReg:"reg"}[id]]||""});
+ if($("settingsBusinessName"))$("settingsBusinessName").value=b.name||"";
+ if($("settingsBusinessPhone"))$("settingsBusinessPhone").value=b.phone||"";
+ if($("settingsBusinessEmail"))$("settingsBusinessEmail").value=b.email||"";
+ if($("settingsBusinessAddress"))$("settingsBusinessAddress").value=b.address||"";
+ if($("settingsBusinessTin"))$("settingsBusinessTin").value=b.tin||"";
+ if($("settingsBusinessReg"))$("settingsBusinessReg").value=b.reg||"";
+ if($("settingsCurrency"))$("settingsCurrency").value=b.currency||"NGN";
+}
+function saveBusiness(){
+ state.business={name:$("settingsBusinessName")?.value.trim()||"",phone:$("settingsBusinessPhone")?.value.trim()||"",email:$("settingsBusinessEmail")?.value.trim()||"",address:$("settingsBusinessAddress")?.value.trim()||"",tin:$("settingsBusinessTin")?.value.trim()||"",reg:$("settingsBusinessReg")?.value.trim()||"",currency:$("settingsCurrency")?.value||"NGN"};
+ save();fillBusiness();alert("Business profile saved.");calculateTotal();
+}
+function saveDocument(){
+ var type=state.editorType||"receipt",calc=calculateTotal();
+ var doc={id:Date.now(),type:type,number:$("documentNumber")?.value||nextNumber(type),date:new Date().toISOString(),business:Object.assign({},state.business),customer:{name:$("customerNameQuick")?.value.trim()||$("customerName")?.value.trim()||"",phone:$("customerPhone")?.value.trim()||"",email:$("customerEmail")?.value.trim()||"",address:$("customerAddress")?.value.trim()||"",tin:$("customerTin")?.value.trim()||""},items:JSON.parse(JSON.stringify(state.items)),po:$("poNumber")?.value.trim()||"",reference:$("referenceNumber")?.value.trim()||"",dueDate:$("dueDate")?.value||"",paymentTerms:$("paymentTerms")?.value.trim()||"",paymentMethod:$("paymentMethod")?.value||"",paymentStatus:$("paymentStatus")?.value||"Paid",notes:$("notes")?.value.trim()||"",subtotal:calc.sub,discount:calc.discount,tax:calc.tax,total:calc.total};
+ state.documents.unshift(doc);state.counters[type]=(state.counters[type]||1)+1;save();renderDocuments();
+ alert(type.charAt(0).toUpperCase()+type.slice(1)+" "+doc.number+" created successfully.");
+ screen("documents");
+}
+function renderDocuments(){
+ var box=$("documentsList");if(!box)return;
+ var list=state.documents.filter(function(d){return !state.docTab||d.type===state.docTab});
+ box.innerHTML=list.length?list.map(function(d){return '<div class="list-row"><div><strong>'+esc(d.number)+'</strong><span>'+esc(d.customer.name||"No customer")+'</span></div><strong>'+esc(money(d.total))+'</strong></div>'}).join(""):'<div class="empty-state">No '+esc(state.docTab||"")+' documents yet.</div>';
+}
+function renderCustomers(){
+ var box=$("customerList");if(!box)return;
+ box.innerHTML=state.customers.length?state.customers.map(function(c,i){return '<div class="list-row"><span>'+esc(c.name||c)+'</span><button data-delete-customer="'+i+'">Delete</button></div>'}).join(""):'<div class="empty-state">No customers saved yet.</div>';
 }
 document.addEventListener("click",function(ev){
  var nav=ev.target.closest("[data-screen]");if(nav){ev.preventDefault();screen(nav.dataset.screen);return}
  var create=ev.target.closest("[data-create]");if(create){ev.preventDefault();editor(create.dataset.create);return}
  var type=ev.target.closest("[data-editor-type]");if(type){ev.preventDefault();editor(type.dataset.editorType);return}
- var tab=ev.target.closest("[data-doc-tab]");if(tab){state.docTab=tab.dataset.docTab;document.querySelectorAll("[data-doc-tab]").forEach(function(x){x.classList.toggle("active",x===tab)});save();return}
+ var tab=ev.target.closest("[data-doc-tab]");if(tab){state.docTab=tab.dataset.docTab;document.querySelectorAll("[data-doc-tab]").forEach(function(x){x.classList.toggle("active",x===tab)});renderDocuments();save();return}
  var toggle=ev.target.closest("[id$=Toggle]");if(toggle){var map={businessToggle:"businessDetails",customerToggle:"customerDetails",documentDetailsToggle:"documentDetails"};var body=$(map[toggle.id]);if(body)body.classList.toggle("open");return}
+ if(ev.target.closest("#addItem")){state.items.push({name:"",qty:1,price:""});renderItems();return}
+ var rem=ev.target.closest("[data-remove]");if(rem){state.items.splice(Number(rem.dataset.remove),1);if(!state.items.length)state.items.push({name:"",qty:1,price:""});renderItems();calculateTotal();return}
+ if(ev.target.closest("#saveDocument")){saveDocument();return}
+ if(ev.target.closest("#saveBusinessProfile")){saveBusiness();return}
+ if(ev.target.closest("#addCustomer")){var v=$("newCustomer")?.value.trim();if(v){state.customers.push({name:v});$("newCustomer").value="";save();renderCustomers()}return}
+ var del=ev.target.closest("[data-delete-customer]");if(del){state.customers.splice(Number(del.dataset.deleteCustomer),1);save();renderCustomers();return}
 });
-if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){screen(state.activeScreen||"home")})}else{screen(state.activeScreen||"home")}
+document.addEventListener("input",function(ev){
+ var t=ev.target;
+ if(t.dataset.item){state.items[Number(t.dataset.index)][t.dataset.item]=t.value;calculateTotal()}
+ if(t.id==="discount"||t.id==="tax")calculateTotal();
+});
+document.addEventListener("change",function(ev){if(ev.target.id==="settingsCurrency"){state.business.currency=ev.target.value;save();calculateTotal()}});
+function init(){fillBusiness();renderDocuments();renderCustomers();screen(state.activeScreen||"home");}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 </script>
 </body>
