@@ -1,78 +1,20 @@
 const state={activeScreen:"home",editorType:"receipt",docTab:"receipt",counters:{receipt:1,invoice:1,quote:1},documents:[],customers:[],stock:[{name:"AGO (Diesel)",unit:"Litres",quantity:0,max:1000},{name:"Fuel",unit:"Litres",quantity:0,max:1000}],items:[]};
 const $=id=>document.getElementById(id);
 const money=n=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN"}).format(Number(n)||0);
-function showScreen(name){
- document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
- const screen=$(name+"Screen"); if(screen)screen.classList.add("active");
- document.querySelectorAll(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.screen===name));
- state.activeScreen=name;
- const titles={home:["Good morning.","Pick what you need below."],documents:["Your documents","Keep receipts, invoices and quotes in one place."],customers:["Customers","Save customer details so you don't have to type them every time."],stock:["Stock","Keep a simple view of what you sell and what is left."],settings:["Settings","Set up your business once. Swift Slip uses it on your documents."]};
- if(titles[name]){$("pageTitle").textContent=titles[name][0];$("pageSubtitle").textContent=titles[name][1]}
- window.scrollTo({top:0,behavior:"smooth"});
-}
-function nextNumber(type){
- const prefix=type==="receipt"?"RCT":type==="invoice"?"INV":"QUO";
- const num=String(state.counters[type]++).padStart(4,"0");
- return prefix+"-"+num;
-}
-function openEditor(type){
- state.editorType=type;state.items=[{name:"",qty:1,price:""}];
- $("editorLabel").textContent=type.charAt(0).toUpperCase()+type.slice(1);
- $("saveType").textContent=type;$("documentNumber").value=nextNumber(type);
- $("customerLabel").firstChild.textContent=type==="receipt"?"Received from":type==="invoice"?"Bill to":"Prepared for";
- document.querySelectorAll("[data-editor-type]").forEach(b=>b.classList.toggle("active",b.dataset.editorType===type));
- renderItems();showEditorScreen();
-}
-function showEditorScreen(){
- document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$("editorScreen").classList.add("active");
- document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
- $("pageTitle").textContent="Create document";$("pageSubtitle").textContent="Fill it in, then save it.";
- window.scrollTo({top:0,behavior:"smooth"});
-}
-function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
-function renderItems(){
- $("items").innerHTML=state.items.map((item,i)=>'<div class="item-row"><input data-item="name" data-index="'+i+'" value="'+escapeHtml(item.name)+'" placeholder="Item or service"><input data-item="price" data-index="'+i+'" value="'+escapeHtml(item.price)+'" inputmode="decimal" placeholder="Amount"><button class="remove-item" data-remove="'+i+'" aria-label="Remove item">×</button></div>').join("");
- calculateTotal();
-}
-function calculateTotal(){
- const total=state.items.reduce((sum,item)=>sum+(Number(item.price)||0)*(Number(item.qty)||1),0);
- $("total").textContent=money(total);return total;
-}
-function saveDocument(){
- const customer=$("customerName").value.trim(),total=calculateTotal();
- if(!customer){toast("Add the customer name first.");$("customerName").focus();return}
- if(!state.items.some(i=>i.name.trim()&&Number(i.price)>0)){toast("Add at least one item and amount.");return}
- state.documents.unshift({id:String(Date.now()),type:state.editorType,number:$("documentNumber").value,customer:customer,total:total,createdAt:new Date().toISOString()});
- renderDocuments();toast(state.editorType.charAt(0).toUpperCase()+state.editorType.slice(1)+" saved.");showScreen("documents");
-}
-function renderDocuments(){
- const filtered=state.documents.filter(d=>d.type===state.docTab);
- $("documentsList").innerHTML=filtered.length?filtered.map(d=>'<div class="document-row"><div><strong>'+escapeHtml(d.number)+'</strong><small>'+escapeHtml(d.customer)+' · '+new Date(d.createdAt).toLocaleDateString("en-NG")+'</small></div><span class="document-total">'+money(d.total)+'</span></div>').join(""):'<div class="empty-state">No '+state.docTab+'s yet.</div>';
- const recent=state.documents.slice(0,4);
- $("recentList").innerHTML=recent.length?recent.map(d=>'<div class="document-row"><div><strong>'+escapeHtml(d.number)+'</strong><small>'+escapeHtml(d.customer)+'</small></div><span class="document-total">'+money(d.total)+'</span></div>').join(""):'<div class="empty-state">No documents yet. Your latest slips will appear here.</div>';
-}
-function renderCustomers(){
- $("customerList").innerHTML=state.customers.length?state.customers.map((c,i)=>'<div class="customer-row"><span>'+escapeHtml(c)+'</span><button class="text-button" data-delete-customer="'+i+'">Remove</button></div>').join(""):'<div class="empty-state">No customers saved yet.</div>';
-}
-function renderStock(){
- $("stockList").innerHTML=state.stock.map(p=>{const percent=Math.min(100,(p.quantity/p.max)*100);return '<div class="stock-card"><div class="stock-top"><div><h3>'+escapeHtml(p.name)+'</h3><p>'+escapeHtml(p.unit)+'</p></div><div class="stock-value">'+p.quantity+'</div></div><div class="stock-bar"><span style="width:'+percent+'%"></span></div></div>'}).join("");
-}
-function toast(message){
- $("toast").textContent=message;$("toast").classList.add("show");clearTimeout(window.toastTimer);
- window.toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2400);
-}
-document.addEventListener("click",e=>{
- const nav=e.target.closest("[data-screen]");if(nav){const screen=nav.dataset.screen;if(screen)showScreen(screen)}
- const create=e.target.closest("[data-create]");if(create)openEditor(create.dataset.create);
- const docTab=e.target.closest("[data-doc-tab]");if(docTab){state.docTab=docTab.dataset.docTab;document.querySelectorAll("[data-doc-tab]").forEach(b=>b.classList.toggle("active",b===docTab));renderDocuments()}
- const editorType=e.target.closest("[data-editor-type]");if(editorType){const type=editorType.dataset.editorType;if(type!==state.editorType)openEditor(type)}
- if(e.target.closest("#businessToggle")){const body=$("businessDetails");const open=body.classList.toggle("open");$("businessToggle").setAttribute("aria-expanded",String(open))}
- if(e.target.closest("#addItem")){state.items.push({name:"",qty:1,price:""});renderItems()}
- const remove=e.target.closest("[data-remove]");if(remove){state.items.splice(Number(remove.dataset.remove),1);if(!state.items.length)state.items.push({name:"",qty:1,price:""});renderItems()}
- if(e.target.closest("#saveDocument"))saveDocument();
- if(e.target.closest("#addCustomer")){const input=$("newCustomer"),value=input.value.trim();if(!value){toast("Enter a customer name.");return}if(!state.customers.includes(value))state.customers.push(value);input.value="";renderCustomers();toast("Customer added.")}
- const del=e.target.closest("[data-delete-customer]");if(del){state.customers.splice(Number(del.dataset.deleteCustomer),1);renderCustomers()}
- if(e.target.closest("#stockPlaceholder"))toast("Stock management will be connected to the cloud database next.");
-});
-document.addEventListener("input",e=>{const target=e.target;if(target.dataset.item){state.items[Number(target.dataset.index)][target.dataset.item]=target.value;if(target.dataset.item==="price")calculateTotal()}});
+function showScreen(name){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const screen=$(name+"Screen");if(screen)screen.classList.add("active");document.querySelectorAll(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.screen===name));state.activeScreen=name;const titles={home:["Good morning.","Pick what you need below."],documents:["Your documents","Keep receipts, invoices and quotes in one place."],customers:["Customers","Save customer details so you don't have to type them every time."],stock:["Stock","Keep a simple view of what you sell and what is left."],settings:["Settings","Set up your business once. Swift Slip uses it on your documents."]};if(titles[name]){$("pageTitle").textContent=titles[name][0];$("pageSubtitle").textContent=titles[name][1]}window.scrollTo({top:0,behavior:"smooth"})}
+function nextNumber(type){const prefix=type==="receipt"?"RCT":type==="invoice"?"INV":"QUO";return prefix+"-"+String(state.counters[type]++).padStart(4,"0")}
+function openEditor(type){state.editorType=type;state.items=[{name:"",qty:1,price:""}];$("editorLabel").textContent=type[0].toUpperCase()+type.slice(1);$("saveType").textContent=type;$("documentNumber").value=nextNumber(type);$("customerLabel").firstChild.textContent=type==="receipt"?"Received from":type==="invoice"?"Bill to":"Prepared for";document.querySelectorAll("[data-editor-type]").forEach(b=>b.classList.toggle("active",b.dataset.editorType===type));renderItems();showEditorScreen()}
+function showEditorScreen(){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$("editorScreen").classList.add("active");document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));$("pageTitle").textContent="Create document";$("pageSubtitle").textContent="Fill it in, then save it.";window.scrollTo({top:0,behavior:"smooth"})}
+function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function renderItems(){$("items").innerHTML=state.items.map((item,i)=>'<div class="item-row"><input data-item="name" data-index="'+i+'" value="'+escapeHtml(item.name)+'" placeholder="Item or service"><input data-item="qty" data-index="'+i+'" value="'+escapeHtml(item.qty)+'" inputmode="decimal" placeholder="Qty"><input data-item="price" data-index="'+i+'" value="'+escapeHtml(item.price)+'" inputmode="decimal" placeholder="Unit price"><button class="remove-item" data-remove="'+i+'" aria-label="Remove item">×</button></div>').join("");calculateTotal()}
+function calculateTotal(){const subtotal=state.items.reduce((sum,item)=>sum+(Number(item.price)||0)*(Number(item.qty)||1),0);const discount=Number($("discount")?.value)||0;const tax=Number($("tax")?.value)||0;const total=Math.max(0,subtotal-discount+tax);if($("subtotal"))$("subtotal").textContent=money(subtotal);if($("total"))$("total").textContent=money(total);return {subtotal,discount,tax,total}}
+function readFilePreview(input,target){if(!input.files||!input.files[0])return;const reader=new FileReader();reader.onload=()=>{if(target)target.dataset.value=reader.result};reader.readAsDataURL(input.files[0])}
+function saveDocument(){const customer=$("customerNameQuick").value.trim();const totals=calculateTotal();if(!customer){toast("Add the customer name first.");$("customerNameQuick").focus();return}if(!state.items.some(i=>i.name.trim()&&Number(i.price)>0)){toast("Add at least one item and amount.");return}const doc={id:String(Date.now()),type:state.editorType,number:$("documentNumber").value,customer,customerPhone:$("customerPhone").value.trim(),customerEmail:$("customerEmail").value.trim(),customerAddress:$("customerAddress").value.trim(),customerTin:$("customerTin").value.trim(),poNumber:$("poNumber").value.trim(),reference:$("referenceNumber").value.trim(),dueDate:$("dueDate").value,paymentTerms:$("paymentTerms").value.trim(),paymentMethod:$("paymentMethod").value,paymentStatus:$("paymentStatus").value,notes:$("notes").value.trim(),...totals,createdAt:new Date().toISOString()};state.documents.unshift(doc);renderDocuments();toast(state.editorType[0].toUpperCase()+state.editorType.slice(1)+" saved.");showScreen("documents")}
+function renderDocuments(){const filtered=state.documents.filter(d=>d.type===state.docTab);$("documentsList").innerHTML=filtered.length?filtered.map(d=>'<div class="document-row"><div><strong>'+escapeHtml(d.number)+'</strong><small>'+escapeHtml(d.customer)+' · '+new Date(d.createdAt).toLocaleDateString("en-NG")+(d.poNumber?" · PO "+escapeHtml(d.poNumber):"")+'</small></div><span class="document-total">'+money(d.total)+'</span></div>').join(""):'<div class="empty-state">No '+state.docTab+'s yet.</div>';const recent=state.documents.slice(0,4);$("recentList").innerHTML=recent.length?recent.map(d=>'<div class="document-row"><div><strong>'+escapeHtml(d.number)+'</strong><small>'+escapeHtml(d.customer)+'</small></div><span class="document-total">'+money(d.total)+'</span></div>').join(""):'<div class="empty-state">No documents yet. Your latest slips will appear here.</div>'}
+function renderCustomers(){$("customerList").innerHTML=state.customers.length?state.customers.map((c,i)=>'<div class="customer-row"><span>'+escapeHtml(c)+'</span><button class="text-button" data-delete-customer="'+i+'">Remove</button></div>').join(""):'<div class="empty-state">No customers saved yet.</div>'}
+function renderStock(){$("stockList").innerHTML=state.stock.map(p=>{const percent=Math.min(100,p.quantity/p.max*100);return '<div class="stock-card"><div class="stock-top"><div><h3>'+escapeHtml(p.name)+'</h3><p>'+escapeHtml(p.unit)+'</p></div><div class="stock-value">'+p.quantity+'</div></div><div class="stock-bar"><span style="width:'+percent+'%"></span></div></div>'}).join("")}
+function toast(message){$("toast").textContent=message;$("toast").classList.add("show");clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2400)}
+document.addEventListener("click",e=>{const nav=e.target.closest("[data-screen]");if(nav)showScreen(nav.dataset.screen);const create=e.target.closest("[data-create]");if(create)openEditor(create.dataset.create);const docTab=e.target.closest("[data-doc-tab]");if(docTab){state.docTab=docTab.dataset.docTab;document.querySelectorAll("[data-doc-tab]").forEach(b=>b.classList.toggle("active",b===docTab));renderDocuments()}const editorType=e.target.closest("[data-editor-type]");if(editorType&&editorType.dataset.editorType!==state.editorType)openEditor(editorType.dataset.editorType);["businessToggle","customerToggle","documentDetailsToggle"].forEach(id=>{if(e.target.closest("#"+id)){const map={businessToggle:"businessDetails",customerToggle:"customerDetails",documentDetailsToggle:"documentDetails"};const body=$(map[id]);const open=body.classList.toggle("open");$(id).setAttribute("aria-expanded",String(open))}});if(e.target.closest("#addItem")){state.items.push({name:"",qty:1,price:""});renderItems()}const remove=e.target.closest("[data-remove]");if(remove){state.items.splice(Number(remove.dataset.remove),1);if(!state.items.length)state.items.push({name:"",qty:1,price:""});renderItems()}if(e.target.closest("#saveDocument"))saveDocument();if(e.target.closest("#addCustomer")){const input=$("newCustomer"),value=input.value.trim();if(!value){toast("Enter a customer name.");return}if(!state.customers.includes(value))state.customers.push(value);input.value="";renderCustomers();toast("Customer added.")}const del=e.target.closest("[data-delete-customer]");if(del){state.customers.splice(Number(del.dataset.deleteCustomer),1);renderCustomers()}if(e.target.closest("#stockPlaceholder"))toast("Stock management will be connected to the cloud database next.")});
+document.addEventListener("input",e=>{const target=e.target;if(target.dataset.item){state.items[Number(target.dataset.index)][target.dataset.item]=target.value;if(["qty","price"].includes(target.dataset.item))calculateTotal()}if(target.id==="discount"||target.id==="tax")calculateTotal()});
+document.addEventListener("change",e=>{if(e.target.id==="businessLogo")readFilePreview(e.target,null);if(e.target.id==="businessSignature")readFilePreview(e.target,null)});
 renderDocuments();renderCustomers();renderStock();
