@@ -38,23 +38,52 @@
   <div class="back-row"><button class="back-button" data-screen="documents">← Back</button><span id="editorLabel">Receipt</span></div>
   <div class="editor-card">
     <div class="document-tabs"><button class="tab active" data-editor-type="receipt">Receipt</button><button class="tab" data-editor-type="invoice">Invoice</button><button class="tab" data-editor-type="quote">Quote</button></div>
+
     <button class="collapse-head" id="businessToggle" aria-expanded="false"><span>Your business details</span><span>⌄</span></button>
     <div class="collapse-body" id="businessDetails">
       <label>Business name<input id="businessName" placeholder="Your business name"></label>
-      <label>Phone<input id="businessPhone" placeholder="080..."></label>
+      <div class="two-col"><label>Phone<input id="businessPhone" placeholder="080..."></label><label>Email<input id="businessEmail" type="email" placeholder="name@business.com"></label></div>
       <label>Address<textarea id="businessAddress" rows="2" placeholder="Business address"></textarea></label>
+      <div class="two-col"><label>TIN / Tax ID<input id="businessTin" placeholder="Optional"></label><label>RC / BN number<input id="businessReg" placeholder="Optional"></label></div>
+      <div class="two-col">
+        <label>Logo<input id="businessLogo" type="file" accept="image/*"></label>
+        <label>Signature<input id="businessSignature" type="file" accept="image/*"></label>
+      </div>
+      <p class="field-hint">Logo and signature will appear on the final PDF. You can skip either one.</p>
     </div>
+
+    <button class="collapse-head" id="customerToggle" aria-expanded="false"><span>Customer details</span><span>⌄</span></button>
+    <div class="collapse-body" id="customerDetails">
+      <label id="customerNameLabel">Customer name<input id="customerName" placeholder="Customer / company name"></label>
+      <div class="two-col"><label>Phone<input id="customerPhone" placeholder="080..."></label><label>Email<input id="customerEmail" type="email" placeholder="customer@email.com"></label></div>
+      <label>Address<textarea id="customerAddress" rows="2" placeholder="Customer address"></textarea></label>
+      <label>Customer TIN / Tax ID<input id="customerTin" placeholder="Optional"></label>
+    </div>
+
     <div class="field-group">
-      <label id="customerLabel">Received from<input id="customerName" placeholder="Customer name"></label>
+      <label id="customerLabel">Received from<input id="customerNameQuick" placeholder="Customer name"></label>
       <label>Number<input id="documentNumber" readonly></label>
     </div>
+
+    <button class="collapse-head compact" id="documentDetailsToggle" aria-expanded="false"><span>Document details</span><span>⌄</span></button>
+    <div class="collapse-body" id="documentDetails">
+      <div class="two-col"><label>PO number<input id="poNumber" placeholder="Optional"></label><label>Reference<input id="referenceNumber" placeholder="Optional"></label></div>
+      <div class="two-col"><label>Due date<input id="dueDate" type="date"></label><label>Payment terms<input id="paymentTerms" placeholder="e.g. 30 days"></label></div>
+      <div class="two-col"><label>Payment method<select id="paymentMethod"><option value="">Select</option><option>Cash</option><option>Bank transfer</option><option>POS</option><option>Card</option><option>Online payment</option><option>Other</option></select></label><label>Payment status<select id="paymentStatus"><option>Paid</option><option>Pending</option><option>Part-paid</option></select></label></div>
+    </div>
+
     <div class="items-heading"><span>Items</span><button class="text-button" id="addItem">+ Add item</button></div>
     <div id="items"></div>
-    <div class="total-box"><span>Total</span><strong id="total">₦0.00</strong></div>
-    <label class="notes-label">Notes (optional)<textarea id="notes" rows="3" placeholder="Add a short note"></textarea></label>
+    <div class="summary-box">
+      <div><span>Subtotal</span><strong id="subtotal">₦0.00</strong></div>
+      <div><span>Discount</span><label class="inline-money"><input id="discount" inputmode="decimal" placeholder="0"><span>₦</span></label></div>
+      <div><span>Tax / VAT</span><label class="inline-money"><input id="tax" inputmode="decimal" placeholder="0"><span>₦</span></label></div>
+      <div class="grand-total"><span>Total</span><strong id="total">₦0.00</strong></div>
+    </div>
+    <label class="notes-label">Notes / terms (optional)<textarea id="notes" rows="3" placeholder="Thank you for your business..."></textarea></label>
     <button class="full-button" id="saveDocument">Create <span id="saveType">receipt</span></button>
     <button class="secondary-button" id="whatsappButton" disabled>Send on WhatsApp</button>
-    <p class="helper">PDF and WhatsApp sending will be connected in the next build step.</p>
+    <p class="helper">PDF, saved business profiles and WhatsApp sending are the next connection steps.</p>
   </div>
 </section>
 
@@ -73,11 +102,12 @@
 <section class="screen" id="settingsScreen">
   <div class="page-intro"><h2>Settings</h2><p>Set up your business once. Swift Slip uses it on your documents.</p></div>
   <div class="settings-card">
-    <div class="setting-row"><span>Business profile</span><span class="status-pill">Not connected</span></div>
+    <div class="setting-row"><span>Business profile</span><span class="status-pill">Ready to connect</span></div>
+    <div class="setting-row"><span>Logo & signature</span><span class="status-pill muted">Supported</span></div>
     <div class="setting-row"><span>Cloud sync</span><span class="status-pill muted">Coming next</span></div>
     <div class="setting-row"><span>Subscription</span><span class="status-pill muted">Free</span></div>
   </div>
-  <div class="notice"><strong>You're using the Swift Slip preview.</strong><p>The interface is ready first. Accounts, cloud storage, PDF generation and payments will be added without making the app harder to use.</p></div>
+  <div class="notice"><strong>Optional fields stay optional.</strong><p>Different businesses need different information. Swift Slip will only show the extra fields when you need them.</p></div>
 </section>
 </main>
 <nav class="bottom-nav" aria-label="Main navigation">
