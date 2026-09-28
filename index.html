@@ -147,6 +147,22 @@
     </div>
   </div>
 </div>
+<div class="preview-modal" id="previewModal" aria-hidden="true">
+  <div class="preview-backdrop" data-close-preview></div>
+  <div class="preview-sheet">
+    <div class="preview-toolbar">
+      <div><strong>Document preview</strong><small>Check it before sending.</small></div>
+      <button type="button" class="close-preview" data-close-preview>×</button>
+    </div>
+    <div class="preview-paper-wrap"><div class="preview-paper" id="previewPaper"></div></div>
+    <div class="preview-actions">
+      <button type="button" class="full-button" id="downloadPdf">Download / Print PDF</button>
+      <button type="button" class="whatsapp-button" id="shareWhatsApp">Send on WhatsApp</button>
+      <button type="button" class="secondary-button" data-close-preview>Close</button>
+    </div>
+    <p class="helper">On a phone, “Download / Print PDF” opens the system print dialog. Choose “Save as PDF”. WhatsApp opens with a ready-to-send message; attach the saved PDF there.</p>
+  </div>
+</div>
 <div id="toast" class="toast" role="status"></div>
 <script>
 (function(){
