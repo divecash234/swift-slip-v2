@@ -49,3 +49,8 @@ label{display:block;font-size:13px;font-weight:750;color:#4f5752}input,textarea,
 .doc-open span small{margin-top:4px;color:#69716c}
 @media(max-width:600px){.preview-sheet{padding:0 10px 20px}.preview-paper{padding:20px 15px;font-size:12px}.preview-paper .paper-head{gap:10px}.preview-paper h2{font-size:18px}.preview-paper .doc-title strong{font-size:17px}.preview-paper th,.preview-paper td{padding:7px 3px}}
 @media print{.preview-modal{display:none!important}}
+
+.preview-paper .paper-logo{display:block;max-width:120px;max-height:65px;object-fit:contain;margin-bottom:8px}
+.preview-paper .paper-signature{margin-top:26px;text-align:right}
+.preview-paper .paper-signature img{display:block;margin-left:auto;max-width:150px;max-height:70px;object-fit:contain}
+.preview-paper .paper-signature span{display:block;font-size:11px;color:#69716c;margin-top:4px}
