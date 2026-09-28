@@ -230,9 +230,21 @@ function fillBusiness(){
  if($("settingsBusinessTin"))$("settingsBusinessTin").value=b.tin||"";if($("settingsBusinessReg"))$("settingsBusinessReg").value=b.reg||"";
  if($("settingsCurrency"))$("settingsCurrency").value=b.currency||"NGN";
 }
+function fileData(input,done){
+ var f=input&&input.files&&input.files[0];
+ if(!f){done("");return}
+ var reader=new FileReader();
+ reader.onload=function(){done(reader.result)};
+ reader.readAsDataURL(f);
+}
 function saveBusiness(){
- state.business={name:$("settingsBusinessName")?.value.trim()||"",phone:$("settingsBusinessPhone")?.value.trim()||"",email:$("settingsBusinessEmail")?.value.trim()||"",address:$("settingsBusinessAddress")?.value.trim()||"",tin:$("settingsBusinessTin")?.value.trim()||"",reg:$("settingsBusinessReg")?.value.trim()||"",currency:$("settingsCurrency")?.value||"NGN"};
- save();fillBusiness();alert("Business profile saved.");calculateTotal();
+ var b={name:$("settingsBusinessName")?.value.trim()||"",phone:$("settingsBusinessPhone")?.value.trim()||"",email:$("settingsBusinessEmail")?.value.trim()||"",address:$("settingsBusinessAddress")?.value.trim()||"",tin:$("settingsBusinessTin")?.value.trim()||"",reg:$("settingsBusinessReg")?.value.trim()||"",currency:$("settingsCurrency")?.value||"NGN",logo:state.business.logo||"",signature:state.business.signature||""};
+ fileData($("settingsBusinessLogo"),function(logo){
+   fileData($("settingsBusinessSignature"),function(signature){
+     if(logo)b.logo=logo;if(signature)b.signature=signature;
+     state.business=b;save();fillBusiness();alert("Business profile saved.");calculateTotal();
+   });
+ });
 }
 function saveDocument(){
  var type=state.editorType||"receipt",calc=calculateTotal();
@@ -255,15 +267,16 @@ function renderCustomers(){
 }
 function previewHtml(d){
  var b=d.business||{},c=d.customer||{},title=d.type==="receipt"?"RECEIPT":d.type==="invoice"?"INVOICE":"QUOTE";
+ var logo=b.logo?'<img class="paper-logo" src="'+b.logo+'" alt="">':"";
  var rows=(d.items||[]).map(function(it){return '<tr><td>'+esc(it.name||"Item / service")+'</td><td class="num">'+esc(it.qty||1)+'</td><td class="num">'+esc(money(it.price))+'</td><td class="num">'+esc(money((Number(it.qty)||0)*(Number(it.price)||0)))+'</td></tr>'}).join("");
- return '<div class="paper-head"><div><h2>'+esc(b.name||"Your Business")+'</h2><p>'+esc(b.address||"")+'</p><p>'+esc(b.phone||"")+(b.email?" · "+esc(b.email):"")+'</p>'+(b.tin?'<p>TIN: '+esc(b.tin)+'</p>':"")+(b.reg?'<p>RC/BN: '+esc(b.reg)+'</p>':"")+'</div><div class="doc-title"><strong>'+title+'</strong><span>'+esc(d.number)+'</span><span>'+new Date(d.date).toLocaleDateString()+'</span></div></div>'+
+ return '<div class="paper-head"><div>'+logo+'<h2>'+esc(b.name||"Your Business")+'</h2><p>'+esc(b.address||"")+'</p><p>'+esc(b.phone||"")+(b.email?" · "+esc(b.email):"")+'</p>'+(b.tin?'<p>TIN: '+esc(b.tin)+'</p>':"")+(b.reg?'<p>RC/BN: '+esc(b.reg)+'</p>':"")+'</div><div class="doc-title"><strong>'+title+'</strong><span>'+esc(d.number)+'</span><span>'+new Date(d.date).toLocaleDateString()+'</span></div></div>'+
  '<div class="paper-customer"><strong>'+(d.type==="receipt"?"Received from":"Bill to")+'</strong><p>'+esc(c.name||"Walk-in customer")+'</p>'+(c.phone?'<span>'+esc(c.phone)+'</span>':"")+(c.address?'<span>'+esc(c.address)+'</span>':"")+'</div>'+
  '<table><thead><tr><th>Item / Service</th><th>Qty</th><th>Unit</th><th>Amount</th></tr></thead><tbody>'+rows+'</tbody></table>'+
  '<div class="paper-totals"><div><span>Subtotal</span><strong>'+money(d.subtotal)+'</strong></div><div><span>Discount</span><strong>'+money(d.discount)+'</strong></div><div><span>Tax / VAT</span><strong>'+money(d.tax)+'</strong></div><div class="total-line"><span>Total</span><strong>'+money(d.total)+'</strong></div><p>'+esc(amountWords(d.total))+'</p></div>'+
  (d.paymentMethod?'<p><strong>Payment method:</strong> '+esc(d.paymentMethod)+(d.paymentStatus?' · '+esc(d.paymentStatus):"")+'</p>':"")+
  (d.po?'<p><strong>PO:</strong> '+esc(d.po)+'</p>':"")+(d.reference?'<p><strong>Reference:</strong> '+esc(d.reference)+'</p>':"")+
  (d.notes?'<div class="paper-notes"><strong>Notes</strong><p>'+esc(d.notes)+'</p></div>':"")+
- '<div class="paper-footer">Thank you for your business.</div>';
+ '<div class="paper-footer">Thank you for your business.</div>'+(b.signature?'<div class="paper-signature"><img src="'+b.signature+'" alt="Signature"><span>Authorized signature</span></div>':"");
 }
 function showPreview(d){
  lastPreview=d;$("previewPaper").innerHTML=previewHtml(d);$("previewModal").classList.add("show");$("previewModal").setAttribute("aria-hidden","false");
