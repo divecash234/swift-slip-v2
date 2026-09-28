@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1f7a4d">
+<meta name="description" content="Swift Slip — simple receipts, invoices and quotes for small businesses.">
+<title>Swift Slip</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-shell">
+<header class="topbar">
+  <div><p class="eyebrow">Swift Slip</p><h1 id="pageTitle">Good morning.</h1><p id="pageSubtitle">Pick what you need below.</p></div>
+  <button class="avatar" aria-label="Open settings" data-screen="settings">SS</button>
+</header>
+<main>
+<section class="screen active" id="homeScreen">
+  <div class="welcome-card"><span class="card-kicker">Business documents</span><h2>Create it. Send it. Done.</h2><p>Make a professional receipt, invoice or quote from your phone.</p></div>
+  <div class="section-heading"><h2>What do you need?</h2></div>
+  <div class="action-grid">
+    <button class="action-card primary" data-create="receipt"><span class="action-icon">₦</span><span><strong>Receipt</strong><small>Show payment received</small></span><span class="arrow">→</span></button>
+    <button class="action-card" data-create="invoice"><span class="action-icon">▤</span><span><strong>Invoice</strong><small>Request payment</small></span><span class="arrow">→</span></button>
+    <button class="action-card" data-create="quote"><span class="action-icon">◫</span><span><strong>Quote</strong><small>Send an estimate</small></span><span class="arrow">→</span></button>
+  </div>
+  <div class="section-heading row"><h2>Recent documents</h2><button class="text-button" data-screen="documents">View all</button></div>
+  <div id="recentList" class="list-card"><div class="empty-state">No documents yet. Your latest slips will appear here.</div></div>
+</section>
+
+<section class="screen" id="documentsScreen">
+  <div class="page-intro"><h2>Your documents</h2><p>Keep receipts, invoices and quotes in one place.</p></div>
+  <div class="tabs"><button class="tab active" data-doc-tab="receipt">Receipt</button><button class="tab" data-doc-tab="invoice">Invoice</button><button class="tab" data-doc-tab="quote">Quote</button></div>
+  <div id="documentsList" class="list-card"><div class="empty-state">No receipts yet.</div></div>
+  <button class="full-button" data-create="receipt">+ Create receipt</button>
+</section>
+
+<section class="screen" id="editorScreen">
+  <div class="back-row"><button class="back-button" data-screen="documents">← Back</button><span id="editorLabel">Receipt</span></div>
+  <div class="editor-card">
+    <div class="document-tabs"><button class="tab active" data-editor-type="receipt">Receipt</button><button class="tab" data-editor-type="invoice">Invoice</button><button class="tab" data-editor-type="quote">Quote</button></div>
+    <button class="collapse-head" id="businessToggle" aria-expanded="false"><span>Your business details</span><span>⌄</span></button>
+    <div class="collapse-body" id="businessDetails">
+      <label>Business name<input id="businessName" placeholder="Your business name"></label>
+      <label>Phone<input id="businessPhone" placeholder="080..."></label>
+      <label>Address<textarea id="businessAddress" rows="2" placeholder="Business address"></textarea></label>
+    </div>
+    <div class="field-group">
+      <label id="customerLabel">Received from<input id="customerName" placeholder="Customer name"></label>
+      <label>Number<input id="documentNumber" readonly></label>
+    </div>
+    <div class="items-heading"><span>Items</span><button class="text-button" id="addItem">+ Add item</button></div>
+    <div id="items"></div>
+    <div class="total-box"><span>Total</span><strong id="total">₦0.00</strong></div>
+    <label class="notes-label">Notes (optional)<textarea id="notes" rows="3" placeholder="Add a short note"></textarea></label>
+    <button class="full-button" id="saveDocument">Create <span id="saveType">receipt</span></button>
+    <button class="secondary-button" id="whatsappButton" disabled>Send on WhatsApp</button>
+    <p class="helper">PDF and WhatsApp sending will be connected in the next build step.</p>
+  </div>
+</section>
+
+<section class="screen" id="customersScreen">
+  <div class="page-intro"><h2>Customers</h2><p>Save customer details so you don't have to type them every time.</p></div>
+  <div class="inline-form"><input id="newCustomer" placeholder="Customer name"><button id="addCustomer">Add</button></div>
+  <div id="customerList" class="list-card"><div class="empty-state">No customers saved yet.</div></div>
+</section>
+
+<section class="screen" id="stockScreen">
+  <div class="page-intro"><h2>Stock</h2><p>Keep a simple view of what you sell and what is left.</p></div>
+  <div id="stockList" class="stock-grid"></div>
+  <button class="full-button" id="stockPlaceholder">+ Add product</button>
+</section>
+
+<section class="screen" id="settingsScreen">
+  <div class="page-intro"><h2>Settings</h2><p>Set up your business once. Swift Slip uses it on your documents.</p></div>
+  <div class="settings-card">
+    <div class="setting-row"><span>Business profile</span><span class="status-pill">Not connected</span></div>
+    <div class="setting-row"><span>Cloud sync</span><span class="status-pill muted">Coming next</span></div>
+    <div class="setting-row"><span>Subscription</span><span class="status-pill muted">Free</span></div>
+  </div>
+  <div class="notice"><strong>You're using the Swift Slip preview.</strong><p>The interface is ready first. Accounts, cloud storage, PDF generation and payments will be added without making the app harder to use.</p></div>
+</section>
+</main>
+<nav class="bottom-nav" aria-label="Main navigation">
+  <button class="nav-item active" data-screen="home"><span>⌂</span><small>Home</small></button>
+  <button class="nav-item" data-screen="documents"><span>▤</span><small>Documents</small></button>
+  <button class="nav-item" data-screen="customers"><span>♙</span><small>Customers</small></button>
+  <button class="nav-item" data-screen="stock"><span>▥</span><small>Stock</small></button>
+  <button class="nav-item" data-screen="settings"><span>⚙</span><small>Settings</small></button>
+</nav>
+</div>
+<div id="toast" class="toast" role="status"></div>
+<script src="script.js"></script>
+</body>
+</html>
