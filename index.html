@@ -76,9 +76,10 @@
     <div id="items"></div>
     <div class="summary-box">
       <div><span>Subtotal</span><strong id="subtotal">₦0.00</strong></div>
-      <div><span>Discount</span><label class="inline-money"><input id="discount" inputmode="decimal" placeholder="0"><span>₦</span></label></div>
-      <div><span>Tax / VAT</span><label class="inline-money"><input id="tax" inputmode="decimal" placeholder="0"><span>₦</span></label></div>
+      <div><span>Discount</span><label class="inline-money"><input id="discount" inputmode="decimal" placeholder="0"><span id="discountCurrency">₦</span></label></div>
+      <div><span>Tax / VAT</span><label class="inline-money"><input id="tax" inputmode="decimal" placeholder="0"><span id="taxCurrency">₦</span></label></div>
       <div class="grand-total"><span>Total</span><strong id="total">₦0.00</strong></div>
+      <p class="amount-words" id="amountWords">Zero Naira Only</p>
     </div>
     <label class="notes-label">Notes / terms (optional)<textarea id="notes" rows="3" placeholder="Thank you for your business..."></textarea></label>
     <button class="full-button" id="saveDocument">Create <span id="saveType">receipt</span></button>
@@ -101,8 +102,24 @@
 
 <section class="screen" id="settingsScreen">
   <div class="page-intro"><h2>Settings</h2><p>Set up your business once. Swift Slip uses it on your documents.</p></div>
+  <div class="profile-card">
+    <h3>Business profile</h3>
+    <p>Set this once. Swift Slip will reuse it on every receipt, invoice and quote.</p>
+    <div class="two-col">
+      <label>Business name<input id="settingsBusinessName" placeholder="Your business name"></label>
+      <label>Default currency<select id="settingsCurrency"><option value="NGN">🇳🇬 Naira (NGN) — ₦</option><option value="USD">🇺🇸 US Dollar (USD) — $</option><option value="GBP">🇬🇧 British Pound (GBP) — £</option><option value="EUR">🇪🇺 Euro (EUR) — €</option><option value="CAD">🇨🇦 Canadian Dollar (CAD) — $</option><option value="AUD">🇦🇺 Australian Dollar (AUD) — $</option><option value="GHS">🇬🇭 Ghanaian Cedi (GHS) — ₵</option><option value="KES">🇰🇪 Kenyan Shilling (KES) — KSh</option></select></label>
+    </div>
+    <div class="two-col">
+      <label>Phone<input id="settingsBusinessPhone" placeholder="080..."></label>
+      <label>Email<input id="settingsBusinessEmail" type="email" placeholder="name@business.com"></label>
+    </div>
+    <label>Address<textarea id="settingsBusinessAddress" rows="2" placeholder="Business address"></textarea></label>
+    <div class="two-col"><label>TIN / Tax ID<input id="settingsBusinessTin" placeholder="Optional"></label><label>RC / BN number<input id="settingsBusinessReg" placeholder="Optional"></label></div>
+    <div class="two-col"><label>Logo<input id="settingsBusinessLogo" type="file" accept="image/*"></label><label>Signature<input id="settingsBusinessSignature" type="file" accept="image/*"></label></div>
+    <button class="full-button" id="saveBusinessProfile">Save business profile</button>
+  </div>
   <div class="settings-card">
-    <div class="setting-row"><span>Business profile</span><span class="status-pill">Ready to connect</span></div>
+    <div class="setting-row"><span>Business profile</span><span class="status-pill">Saved on this device</span></div>
     <div class="setting-row"><span>Logo & signature</span><span class="status-pill muted">Supported</span></div>
     <div class="setting-row"><span>Cloud sync</span><span class="status-pill muted">Coming next</span></div>
     <div class="setting-row"><span>Subscription</span><span class="status-pill muted">Free</span></div>
