@@ -19,9 +19,9 @@
   <div class="welcome-card"><span class="card-kicker">Business documents</span><h2>Create it. Send it. Done.</h2><p>Make a professional receipt, invoice or quote from your phone.</p></div>
   <div class="section-heading"><h2>What do you need?</h2></div>
   <div class="action-grid">
-    <button class="action-card primary" data-create="receipt"><span class="action-icon">₦</span><span><strong>Receipt</strong><small>Show payment received</small></span><span class="arrow">→</span></button>
-    <button class="action-card" data-create="invoice"><span class="action-icon">▤</span><span><strong>Invoice</strong><small>Request payment</small></span><span class="arrow">→</span></button>
-    <button class="action-card" data-create="quote"><span class="action-icon">◫</span><span><strong>Quote</strong><small>Send an estimate</small></span><span class="arrow">→</span></button>
+    <button class="action-card primary" type="button" data-create="receipt" onclick="swiftCreate('receipt')"><span class="action-icon">₦</span><span><strong>Receipt</strong><small>Show payment received</small></span><span class="arrow">→</span></button>
+    <button class="action-card" type="button" data-create="invoice" onclick="swiftCreate('invoice')"><span class="action-icon">▤</span><span><strong>Invoice</strong><small>Request payment</small></span><span class="arrow">→</span></button>
+    <button class="action-card" type="button" data-create="quote" onclick="swiftCreate('quote')"><span class="action-icon">◫</span><span><strong>Quote</strong><small>Send an estimate</small></span><span class="arrow">→</span></button>
   </div>
   <div class="section-heading row"><h2>Recent documents</h2><button class="text-button" data-screen="documents">View all</button></div>
   <div id="recentList" class="list-card"><div class="empty-state">No documents yet. Your latest slips will appear here.</div></div>
@@ -250,6 +250,16 @@ document.addEventListener("click",function(e){
   var nav=e.target.closest("[data-screen]");
   if(nav){e.preventDefault();swiftNavigate(nav.getAttribute("data-screen"))}
 });
+function swiftCreate(type){
+  if(typeof openEditor === "function"){ openEditor(type); return; }
+  document.querySelectorAll(".screen").forEach(function(s){s.classList.remove("active")});
+  var editor=document.getElementById("editorScreen");
+  if(editor) editor.classList.add("active");
+  var label=document.getElementById("editorLabel");
+  var saveType=document.getElementById("saveType");
+  if(label) label.textContent=type.charAt(0).toUpperCase()+type.slice(1);
+  if(saveType) saveType.textContent=type;
+}
 function swiftNavigate(name){
   document.querySelectorAll(".screen").forEach(function(s){s.classList.remove("active")});
   var screen=document.getElementById(name+"Screen");
