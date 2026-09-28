@@ -1,320 +1,195 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#1f7a4d">
-<meta name="description" content="Swift Slip — simple receipts, invoices and quotes for small businesses.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d6b4d">
+<meta name="description" content="Swift Slip — professional business documents, customers, stock and business tools.">
 <title>Swift Slip</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="app-shell">
+<div class="app">
 <header class="topbar">
-  <div><p class="eyebrow">Swift Slip</p><h1 id="pageTitle">Good morning.</h1><p id="pageSubtitle">Pick what you need below.</p></div>
-  <button class="avatar" aria-label="Open settings" data-screen="settings">SS</button>
+  <div class="brand"><div class="brand-mark">S</div><div><b>Swift Slip</b><span id="businessHeader">Business workspace</span></div></div>
+  <button class="avatar" data-screen="settings" aria-label="Settings">SS</button>
 </header>
+
 <main>
 <section class="screen active" id="homeScreen">
-  <div class="welcome-card"><span class="card-kicker">Business documents</span><h2>Create it. Send it. Done.</h2><p>Make a professional receipt, invoice or quote from your phone.</p></div>
-  <div class="section-heading"><h2>What do you need?</h2></div>
-  <div class="action-grid">
-    <button class="action-card primary" type="button" data-create="receipt"><span class="action-icon">₦</span><span><strong>Receipt</strong><small>Show payment received</small></span><span class="arrow">→</span></button>
-    <button class="action-card" type="button" data-create="invoice"><span class="action-icon">▤</span><span><strong>Invoice</strong><small>Request payment</small></span><span class="arrow">→</span></button>
-    <button class="action-card" type="button" data-create="quote"><span class="action-icon">◫</span><span><strong>Quote</strong><small>Send an estimate</small></span><span class="arrow">→</span></button>
+  <div class="hero"><div><span class="eyebrow">BUSINESS WORKSPACE</span><h1>Run your business.<br><em>One slip at a time.</em></h1><p>Create professional documents, manage customers and keep your business organized from your phone.</p></div><div class="hero-glow">₦</div></div>
+
+  <div class="quick-head"><div><span class="eyebrow">QUICK CREATE</span><h2>What are you making?</h2></div></div>
+  <div class="create-grid">
+    <button class="create-card receipt" data-create="receipt"><span class="create-icon">✓</span><span><b>Receipt</b><small>Confirm payment received</small></span><i>→</i></button>
+    <button class="create-card invoice" data-create="invoice"><span class="create-icon">▤</span><span><b>Invoice</b><small>Request payment professionally</small></span><i>→</i></button>
+    <button class="create-card quote" data-create="quote"><span class="create-icon">◫</span><span><b>Quote</b><small>Send an estimate before work</small></span><i>→</i></button>
   </div>
-  <div class="section-heading row"><h2>Recent documents</h2><button class="text-button" data-screen="documents">View all</button></div>
-  <div id="recentList" class="list-card"><div class="empty-state">No documents yet. Your latest slips will appear here.</div></div>
+
+  <div class="stats">
+    <div><span id="statDocuments">0</span><small>Documents</small></div>
+    <div><span id="statCustomers">0</span><small>Customers</small></div>
+    <div><span id="statSales">₦0</span><small>Document value</small></div>
+  </div>
+
+  <div class="section-title"><h2>Recent activity</h2><button class="link" data-screen="documents">View all</button></div>
+  <div id="recentList" class="surface empty">No documents yet.</div>
 </section>
 
 <section class="screen" id="documentsScreen">
-  <div class="page-intro"><h2>Your documents</h2><p>Keep receipts, invoices and quotes in one place.</p></div>
-  <div class="tabs"><button class="tab active" data-doc-tab="receipt">Receipt</button><button class="tab" data-doc-tab="invoice">Invoice</button><button class="tab" data-doc-tab="quote">Quote</button></div>
-  <div id="documentsList" class="list-card"><div class="empty-state">No receipts yet.</div></div>
-  <button class="full-button" data-create="receipt">+ Create receipt</button>
+  <div class="page-head"><div><span class="eyebrow">DOCUMENTS</span><h1>Your documents</h1><p>Everything you've created, ready to reopen and send.</p></div><button class="round-add" data-create="receipt">+</button></div>
+  <div class="document-tools"><input id="documentSearch" placeholder="Search number or customer…"><select id="documentFilter"><option value="all">All types</option><option value="receipt">Receipts</option><option value="invoice">Invoices</option><option value="quote">Quotes</option></select></div>
+  <div id="documentsList" class="surface empty">No documents yet.</div>
 </section>
 
 <section class="screen" id="editorScreen">
-  <div class="back-row"><button class="back-button" data-screen="documents">← Back</button><span id="editorLabel">Receipt</span></div>
+  <div class="editor-top"><button class="back" data-screen="documents">← Documents</button><span id="editorLabel">New receipt</span><span class="step">Draft</span></div>
   <div class="editor-card">
-    <div class="document-tabs"><button class="tab active" data-editor-type="receipt">Receipt</button><button class="tab" data-editor-type="invoice">Invoice</button><button class="tab" data-editor-type="quote">Quote</button></div>
-
-    <button class="collapse-head" id="businessToggle" aria-expanded="false"><span>Your business details</span><span>⌄</span></button>
-    <div class="collapse-body" id="businessDetails">
-      <label>Business name<input id="businessName" placeholder="Your business name"></label>
-      <div class="two-col"><label>Phone<input id="businessPhone" placeholder="080..."></label><label>Email<input id="businessEmail" type="email" placeholder="name@business.com"></label></div>
-      <label>Address<textarea id="businessAddress" rows="2" placeholder="Business address"></textarea></label>
-      <div class="two-col"><label>TIN / Tax ID<input id="businessTin" placeholder="Optional"></label><label>RC / BN number<input id="businessReg" placeholder="Optional"></label></div>
+    <div class="type-switch"><button data-editor-type="receipt">Receipt</button><button data-editor-type="invoice">Invoice</button><button data-editor-type="quote">Quote</button></div>
+    <div class="form-section">
+      <div class="section-label"><span>01</span><div><b>Customer</b><small>Who is this document for?</small></div></div>
+      <div class="customer-picker"><input id="customerNameQuick" placeholder="Customer or company name"><button id="pickCustomer" type="button">Saved</button></div>
       <div class="two-col">
-        <label>Logo<input id="businessLogo" type="file" accept="image/*"></label>
-        <label>Signature<input id="businessSignature" type="file" accept="image/*"></label>
+        <label>Phone<input id="customerPhone" inputmode="tel" placeholder="080…"></label>
+        <label>Email<input id="customerEmail" type="email" placeholder="name@email.com"></label>
       </div>
-      <p class="field-hint">Logo and signature will appear on the final PDF. You can skip either one.</p>
-    </div>
-
-    <button class="collapse-head" id="customerToggle" aria-expanded="false"><span>Customer details</span><span>⌄</span></button>
-    <div class="collapse-body" id="customerDetails">
-      <label id="customerNameLabel">Customer name<input id="customerName" placeholder="Customer / company name"></label>
-      <div class="two-col"><label>Phone<input id="customerPhone" placeholder="080..."></label><label>Email<input id="customerEmail" type="email" placeholder="customer@email.com"></label></div>
       <label>Address<textarea id="customerAddress" rows="2" placeholder="Customer address"></textarea></label>
       <label>Customer TIN / Tax ID<input id="customerTin" placeholder="Optional"></label>
     </div>
 
-    <div class="field-group">
-      <label id="customerLabel">Received from<input id="customerNameQuick" placeholder="Customer name"></label>
-      <label>Number<input id="documentNumber" readonly></label>
+    <div class="form-section">
+      <div class="section-label"><span>02</span><div><b>Items & services</b><small>Add everything being sold or billed.</small></div><button class="mini-add" id="addItem">+ Add item</button></div>
+      <div class="item-head"><span>Description</span><span>Qty</span><span>Price</span><span></span></div>
+      <div id="items"></div>
     </div>
 
-    <button class="collapse-head compact" id="documentDetailsToggle" aria-expanded="false"><span>Document details</span><span>⌄</span></button>
-    <div class="collapse-body" id="documentDetails">
-      <div class="two-col"><label>PO number<input id="poNumber" placeholder="Optional"></label><label>Reference<input id="referenceNumber" placeholder="Optional"></label></div>
-      <div class="two-col"><label>Due date<input id="dueDate" type="date"></label><label>Payment terms<input id="paymentTerms" placeholder="e.g. 30 days"></label></div>
-      <div class="two-col"><label>Payment method<select id="paymentMethod"><option value="">Select</option><option>Cash</option><option>Bank transfer</option><option>POS</option><option>Card</option><option>Online payment</option><option>Other</option></select></label><label>Payment status<select id="paymentStatus"><option>Paid</option><option>Pending</option><option>Part-paid</option></select></label></div>
+    <div class="totals-card">
+      <div><span>Subtotal</span><b id="subtotal">₦0.00</b></div>
+      <div><span>Discount</span><label class="money-input"><span id="discountCurrency">₦</span><input id="discount" inputmode="decimal" placeholder="0"></label></div>
+      <div><span>Tax / VAT</span><label class="money-input"><span id="taxCurrency">₦</span><input id="tax" inputmode="decimal" placeholder="0"></label></div>
+      <div class="grand"><span>Total</span><b id="total">₦0.00</b></div>
+      <p id="amountWords">Zero Naira Only</p>
     </div>
 
-    <div class="items-heading"><span>Items</span><button class="text-button" id="addItem">+ Add item</button></div>
-    <div id="items"></div>
-    <div class="summary-box">
-      <div><span>Subtotal</span><strong id="subtotal">₦0.00</strong></div>
-      <div><span>Discount</span><label class="inline-money"><input id="discount" inputmode="decimal" placeholder="0"><span id="discountCurrency">₦</span></label></div>
-      <div><span>Tax / VAT</span><label class="inline-money"><input id="tax" inputmode="decimal" placeholder="0"><span id="taxCurrency">₦</span></label></div>
-      <div class="grand-total"><span>Total</span><strong id="total">₦0.00</strong></div>
-      <p class="amount-words" id="amountWords">Zero Naira Only</p>
+    <div class="form-section compact-form">
+      <div class="section-label"><span>03</span><div><b>Document details</b><small>Optional information for a more complete document.</small></div></div>
+      <div class="two-col">
+        <label>Document number<input id="documentNumber" readonly></label>
+        <label>Due date<input id="dueDate" type="date"></label>
+      </div>
+      <div class="two-col">
+        <label>PO number<input id="poNumber" placeholder="Optional"></label>
+        <label>Reference<input id="referenceNumber" placeholder="Optional"></label>
+      </div>
+      <div class="two-col">
+        <label>Payment method<select id="paymentMethod"><option value="">Select</option><option>Cash</option><option>Bank transfer</option><option>POS</option><option>Card</option><option>Online payment</option><option>Other</option></select></label>
+        <label>Status<select id="paymentStatus"><option>Paid</option><option>Pending</option><option>Part-paid</option></select></label>
+      </div>
+      <label>Notes / terms<textarea id="notes" rows="3" placeholder="Thank you for your business…"></textarea></label>
     </div>
-    <label class="notes-label">Notes / terms (optional)<textarea id="notes" rows="3" placeholder="Thank you for your business..."></textarea></label>
-    <button class="full-button" id="saveDocument">Create <span id="saveType">receipt</span></button>
-    <button class="secondary-button" id="whatsappButton" disabled>Send on WhatsApp</button>
-    <p class="helper">PDF, saved business profiles and WhatsApp sending are the next connection steps.</p>
+
+    <button class="primary-button" id="saveDocument">Create <span id="saveType">receipt</span> & preview</button>
+    <p class="privacy-note">Your drafts are saved on this device. Cloud accounts and team workspaces are part of the next SaaS layer.</p>
   </div>
 </section>
 
 <section class="screen" id="customersScreen">
-  <div class="page-intro"><h2>Customers</h2><p>Save customer details so you don't have to type them every time.</p></div>
-  <div class="inline-form"><input id="newCustomer" placeholder="Customer name"><button id="addCustomer">Add</button></div>
-  <div id="customerList" class="list-card"><div class="empty-state">No customers saved yet.</div></div>
+  <div class="page-head"><div><span class="eyebrow">CRM</span><h1>Customers</h1><p>Keep repeat customers ready for the next document.</p></div></div>
+  <div class="add-row"><input id="newCustomer" placeholder="Customer / company name"><button id="addCustomer">Add</button></div>
+  <div id="customerList" class="surface empty">No customers saved yet.</div>
 </section>
 
 <section class="screen" id="stockScreen">
-  <div class="page-intro"><h2>Stock</h2><p>Keep a simple view of what you sell and what is left.</p></div>
+  <div class="page-head"><div><span class="eyebrow">INVENTORY</span><h1>Stock</h1><p>Know what you have before you sell it.</p></div><button class="round-add" id="addStock">+</button></div>
   <div id="stockList" class="stock-grid"></div>
-  <button class="full-button" id="stockPlaceholder">+ Add product</button>
 </section>
 
 <section class="screen" id="settingsScreen">
-  <div class="page-intro"><h2>Settings</h2><p>Set up your business once. Swift Slip uses it on your documents.</p></div>
-  <div class="profile-card">
-    <h3>Business profile</h3>
-    <p>Set this once. Swift Slip will reuse it on every receipt, invoice and quote.</p>
-    <div class="two-col">
-      <label>Business name<input id="settingsBusinessName" placeholder="Your business name"></label>
-      <label>Default currency<select id="settingsCurrency"><option value="NGN">🇳🇬 Naira (NGN) — ₦</option><option value="USD">🇺🇸 US Dollar (USD) — $</option><option value="GBP">🇬🇧 British Pound (GBP) — £</option><option value="EUR">🇪🇺 Euro (EUR) — €</option><option value="CAD">🇨🇦 Canadian Dollar (CAD) — $</option><option value="AUD">🇦🇺 Australian Dollar (AUD) — $</option><option value="GHS">🇬🇭 Ghanaian Cedi (GHS) — ₵</option><option value="KES">🇰🇪 Kenyan Shilling (KES) — KSh</option></select></label>
-    </div>
-    <div class="two-col">
-      <label>Phone<input id="settingsBusinessPhone" placeholder="080..."></label>
-      <label>Email<input id="settingsBusinessEmail" type="email" placeholder="name@business.com"></label>
-    </div>
+  <div class="page-head"><div><span class="eyebrow">WORKSPACE</span><h1>Business settings</h1><p>Set your identity once and use it everywhere.</p></div></div>
+  <div class="settings-hero"><div class="profile-logo" id="logoPreview">S</div><div><b id="settingsBusinessPreview">Your business</b><small>Professional document profile</small></div></div>
+  <div class="surface form-surface">
+    <div class="section-label"><span>01</span><div><b>Business identity</b><small>This appears on every document.</small></div></div>
+    <label>Business name<input id="settingsBusinessName" placeholder="Your registered business name"></label>
+    <div class="two-col"><label>Phone<input id="settingsBusinessPhone" inputmode="tel" placeholder="080…"></label><label>Email<input id="settingsBusinessEmail" type="email" placeholder="name@business.com"></label></div>
     <label>Address<textarea id="settingsBusinessAddress" rows="2" placeholder="Business address"></textarea></label>
     <div class="two-col"><label>TIN / Tax ID<input id="settingsBusinessTin" placeholder="Optional"></label><label>RC / BN number<input id="settingsBusinessReg" placeholder="Optional"></label></div>
+    <div class="two-col"><label>Currency<select id="settingsCurrency"><option value="NGN">Nigerian Naira — ₦</option><option value="USD">US Dollar — $</option><option value="GBP">British Pound — £</option><option value="EUR">Euro — €</option><option value="GHS">Ghanaian Cedi — ₵</option><option value="KES">Kenyan Shilling — KSh</option></select></label><label>Brand colour<input id="settingsAccent" type="color" value="#0d6b4d"></label></div>
     <div class="two-col"><label>Logo<input id="settingsBusinessLogo" type="file" accept="image/*"></label><label>Signature<input id="settingsBusinessSignature" type="file" accept="image/*"></label></div>
-    <button class="full-button" id="saveBusinessProfile">Save business profile</button>
+    <button class="primary-button" id="saveBusinessProfile">Save business profile</button>
   </div>
-  <div class="settings-card">
-    <div class="setting-row"><span>Business profile</span><span class="status-pill">Saved on this device</span></div>
-    <div class="setting-row"><span>Logo & signature</span><span class="status-pill muted">Supported</span></div>
-    <div class="setting-row"><span>Cloud sync</span><span class="status-pill muted">Coming next</span></div>
-    <div class="setting-row"><span>Subscription</span><span class="status-pill muted">Free</span></div>
+  <div class="surface feature-list">
+    <div><span class="feature-icon">☁</span><span><b>Cloud workspace</b><small>Coming in the SaaS backend — access your business from any device.</small></span><em>Next</em></div>
+    <div><span class="feature-icon">₦</span><span><b>Subscriptions & payments</b><small>Paystack-powered plans will live here.</small></span><em>Next</em></div>
+    <div><span class="feature-icon">▥</span><span><b>Reports & analytics</b><small>Sales, outstanding invoices, stock and customer insights.</small></span><em>Next</em></div>
   </div>
-  <div class="notice"><strong>Optional fields stay optional.</strong><p>Different businesses need different information. Swift Slip will only show the extra fields when you need them.</p></div>
 </section>
 </main>
-<nav class="bottom-nav" aria-label="Main navigation">
-  <button class="nav-item active" data-screen="home"><span>⌂</span><small>Home</small></button>
-  <button class="nav-item" data-screen="documents"><span>▤</span><small>Documents</small></button>
-  <button class="nav-item" data-screen="customers"><span>♙</span><small>Customers</small></button>
-  <button class="nav-item" data-screen="stock"><span>▥</span><small>Stock</small></button>
-  <button class="nav-item" data-screen="settings"><span>⚙</span><small>Settings</small></button>
+
+<nav class="bottom-nav">
+<button class="nav-item active" data-screen="home"><span>⌂</span><small>Home</small></button>
+<button class="nav-item" data-screen="documents"><span>▤</span><small>Documents</small></button>
+<button class="nav-item" data-screen="customers"><span>♙</span><small>Customers</small></button>
+<button class="nav-item" data-screen="stock"><span>▥</span><small>Stock</small></button>
+<button class="nav-item" data-screen="settings"><span>⚙</span><small>Settings</small></button>
 </nav>
 </div>
-<div id="previewModal" class="preview-modal" aria-hidden="true">
-  <div class="preview-backdrop" data-close-preview></div>
-  <div class="preview-sheet">
-    <div class="preview-top"><strong>Document preview</strong><button type="button" class="icon-button" data-close-preview>×</button></div>
-    <div id="previewPaper" class="preview-paper"></div>
-    <div class="preview-actions">
-      <button type="button" class="full-button" id="downloadPdf">Download / Save PDF</button>
-      <button type="button" class="secondary-button" id="shareWhatsApp">Send on WhatsApp</button>
-      <button type="button" class="secondary-button" data-close-preview>Close</button>
-    </div>
-  </div>
+
+<div class="modal" id="previewModal" aria-hidden="true">
+ <div class="modal-bg" data-close-preview></div>
+ <div class="modal-sheet">
+  <div class="modal-bar"><div><b>Document preview</b><small>Ready to check, save and send.</small></div><button class="close" data-close-preview>×</button></div>
+  <div class="paper-wrap"><div id="previewPaper" class="paper"></div></div>
+  <div class="preview-actions"><button class="primary-button" id="downloadPdf">Download / Save PDF</button><button class="whatsapp-button" id="shareWhatsApp">Send on WhatsApp</button><button class="ghost-button" data-close-preview>Close</button></div>
+  <p class="privacy-note">On mobile, choose “Save as PDF” in the print dialog. WhatsApp opens a prepared message; attach the saved PDF there.</p>
+ </div>
 </div>
-<div class="preview-modal" id="previewModal" aria-hidden="true">
-  <div class="preview-backdrop" data-close-preview></div>
-  <div class="preview-sheet">
-    <div class="preview-toolbar">
-      <div><strong>Document preview</strong><small>Check it before sending.</small></div>
-      <button type="button" class="close-preview" data-close-preview>×</button>
-    </div>
-    <div class="preview-paper-wrap"><div class="preview-paper" id="previewPaper"></div></div>
-    <div class="preview-actions">
-      <button type="button" class="full-button" id="downloadPdf">Download / Print PDF</button>
-      <button type="button" class="whatsapp-button" id="shareWhatsApp">Send on WhatsApp</button>
-      <button type="button" class="secondary-button" data-close-preview>Close</button>
-    </div>
-    <p class="helper">On a phone, “Download / Print PDF” opens the system print dialog. Choose “Save as PDF”. WhatsApp opens with a ready-to-send message; attach the saved PDF there.</p>
-  </div>
+<div class="modal" id="customerModal" aria-hidden="true">
+ <div class="modal-bg" data-close-customer></div><div class="small-sheet"><div class="modal-bar"><b>Choose customer</b><button class="close" data-close-customer>×</button></div><div id="customerChoices"></div></div>
 </div>
-<div id="toast" class="toast" role="status"></div>
+<div class="toast" id="toast"></div>
+
 <script>
 (function(){
 "use strict";
 var KEY="swiftSlipV2";
-var state={activeScreen:"home",editorType:"receipt",docTab:"receipt",counters:{receipt:1,invoice:1,quote:1},documents:[],customers:[],business:{name:"",phone:"",email:"",address:"",tin:"",reg:"",currency:"NGN"},items:[]};
+var state={activeScreen:"home",editorType:"receipt",docTab:"all",counters:{receipt:1,invoice:1,quote:1},documents:[],customers:[],stock:[{name:"AGO",unit:"Litres",qty:0},{name:"Fuel",unit:"Litres",qty:0}],business:{name:"",phone:"",email:"",address:"",tin:"",reg:"",currency:"NGN",accent:"#0d6b4d",logo:"",signature:""},items:[]};
 var lastPreview=null;
 try{var old=JSON.parse(localStorage.getItem(KEY));if(old)state=Object.assign(state,old)}catch(e){}
 function $(id){return document.getElementById(id)}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
-function money(n){n=Number(n)||0;var c=state.business.currency||"NGN";try{return new Intl.NumberFormat("en-NG",{style:"currency",currency:c}).format(n)}catch(e){return c+" "+n.toFixed(2)}}
-function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(x){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[x]})}
-function numberWords(n){
- n=Math.floor(Number(n)||0);
- var ones=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
- var tens=["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
- function under1000(x){var s="";if(x>=100){s+=ones[Math.floor(x/100)]+" hundred";x%=100;if(x)s+=" and "}if(x>=20){s+=tens[Math.floor(x/10)];if(x%10)s+="-"+ones[x%10]}else if(x)s+=ones[x];return s||"zero"}
- if(n===0)return "zero";
- var parts=[];var units=[["billion",1000000000],["million",1000000],["thousand",1000],["",1]];
- units.forEach(function(u){if(n>=u[1]){var q=Math.floor(n/u[1]);parts.push(under1000(q)+(u[0]?" "+u[0]:""));n%=u[1]}});
- return parts.join(" ");
-}
-function amountWords(n){
- var whole=Math.floor(Number(n)||0),cur=state.business.currency||"NGN";
- var names={NGN:["Naira","Kobo"],USD:["Dollar","Cent"],GBP:["Pound","Pence"],EUR:["Euro","Cents"],CAD:["Canadian Dollar","Cents"],AUD:["Australian Dollar","Cents"],GHS:["Cedi","Pesewas"],KES:["Shilling","Cents"]};
- var x=names[cur]||[cur,"Cents"],minor=Math.round(((Number(n)||0)-whole)*100);
- return numberWords(whole)+" "+x[0]+(minor?" and "+numberWords(minor)+" "+x[1]:"")+" Only";
-}
-function screen(name){
- document.querySelectorAll(".screen").forEach(function(x){x.classList.remove("active")});
- var el=$(name+"Screen");if(el)el.classList.add("active");
- document.querySelectorAll("[data-screen]").forEach(function(x){x.classList.toggle("active",x.dataset.screen===name)});
- state.activeScreen=name;save();window.scrollTo(0,0);
-}
-function nextNumber(type){var p=type==="receipt"?"RCT":type==="invoice"?"INV":"QUO";return p+"-"+String(state.counters[type]||1).padStart(4,"0")}
-function editor(type){
- state.editorType=type;state.items=[{name:"",qty:1,price:""}];
- if($("editorLabel"))$("editorLabel").textContent=type.charAt(0).toUpperCase()+type.slice(1);
- if($("saveType"))$("saveType").textContent=type;
- if($("documentNumber"))$("documentNumber").value=nextNumber(type);
- if($("customerLabel"))$("customerLabel").textContent=type==="receipt"?"Received from":"Bill to";
- document.querySelectorAll("[data-editor-type]").forEach(function(x){x.classList.toggle("active",x.dataset.editorType===type)});
- document.querySelectorAll(".screen").forEach(function(x){x.classList.remove("active")});
- if($("editorScreen"))$("editorScreen").classList.add("active");
- renderItems();calculateTotal();
-}
-function renderItems(){
- var box=$("items");if(!box)return;
- box.innerHTML=state.items.map(function(it,i){return '<div class="item-row"><input data-item="name" data-index="'+i+'" placeholder="Item or service" value="'+esc(it.name)+'"><input data-item="qty" data-index="'+i+'" inputmode="decimal" type="number" min="1" value="'+(it.qty||1)+'"><input data-item="price" data-index="'+i+'" inputmode="decimal" placeholder="Unit price" value="'+esc(it.price)+'"><button type="button" data-remove="'+i+'">×</button></div>'}).join("");
-}
-function calculateTotal(){
- var sub=state.items.reduce(function(a,it){return a+(Number(it.qty)||0)*(Number(it.price)||0)},0);
- var discount=Number($("discount")&&$("discount").value)||0,tax=Number($("tax")&&$("tax").value)||0,total=Math.max(0,sub-discount+tax);
- if($("subtotal"))$("subtotal").textContent=money(sub);if($("total"))$("total").textContent=money(total);
- var sym=money(0).replace(/[0-9.,\s]/g,"");if($("discountCurrency"))$("discountCurrency").textContent=sym;if($("taxCurrency"))$("taxCurrency").textContent=sym;
- if($("amountWords"))$("amountWords").textContent=amountWords(total);
- return {sub:sub,discount:discount,tax:tax,total:total};
-}
-function fillBusiness(){
- var b=state.business||{};
- var map={businessName:"name",businessPhone:"phone",businessEmail:"email",businessAddress:"address",businessTin:"tin",businessReg:"reg"};
- Object.keys(map).forEach(function(id){if($(id))$(id).value=b[map[id]]||""});
- if($("settingsBusinessName"))$("settingsBusinessName").value=b.name||"";if($("settingsBusinessPhone"))$("settingsBusinessPhone").value=b.phone||"";
- if($("settingsBusinessEmail"))$("settingsBusinessEmail").value=b.email||"";if($("settingsBusinessAddress"))$("settingsBusinessAddress").value=b.address||"";
- if($("settingsBusinessTin"))$("settingsBusinessTin").value=b.tin||"";if($("settingsBusinessReg"))$("settingsBusinessReg").value=b.reg||"";
- if($("settingsCurrency"))$("settingsCurrency").value=b.currency||"NGN";
-}
-function fileData(input,done){
- var f=input&&input.files&&input.files[0];
- if(!f){done("");return}
- var reader=new FileReader();
- reader.onload=function(){done(reader.result)};
- reader.readAsDataURL(f);
-}
-function saveBusiness(){
- var b={name:$("settingsBusinessName")?.value.trim()||"",phone:$("settingsBusinessPhone")?.value.trim()||"",email:$("settingsBusinessEmail")?.value.trim()||"",address:$("settingsBusinessAddress")?.value.trim()||"",tin:$("settingsBusinessTin")?.value.trim()||"",reg:$("settingsBusinessReg")?.value.trim()||"",currency:$("settingsCurrency")?.value||"NGN",logo:state.business.logo||"",signature:state.business.signature||""};
- fileData($("settingsBusinessLogo"),function(logo){
-   fileData($("settingsBusinessSignature"),function(signature){
-     if(logo)b.logo=logo;if(signature)b.signature=signature;
-     state.business=b;save();fillBusiness();alert("Business profile saved.");calculateTotal();
-   });
- });
-}
-function saveDocument(){
- var type=state.editorType||"receipt",calc=calculateTotal();
- var doc={id:Date.now(),type:type,number:$("documentNumber")?.value||nextNumber(type),date:new Date().toISOString(),business:Object.assign({},state.business),customer:{name:$("customerNameQuick")?.value.trim()||$("customerName")?.value.trim()||"",phone:$("customerPhone")?.value.trim()||"",email:$("customerEmail")?.value.trim()||"",address:$("customerAddress")?.value.trim()||"",tin:$("customerTin")?.value.trim()||""},items:JSON.parse(JSON.stringify(state.items)),po:$("poNumber")?.value.trim()||"",reference:$("referenceNumber")?.value.trim()||"",dueDate:$("dueDate")?.value||"",paymentTerms:$("paymentTerms")?.value.trim()||"",paymentMethod:$("paymentMethod")?.value||"",paymentStatus:$("paymentStatus")?.value||"Paid",notes:$("notes")?.value.trim()||"",subtotal:calc.sub,discount:calc.discount,tax:calc.tax,total:calc.total};
- state.documents.unshift(doc);state.counters[type]=(state.counters[type]||1)+1;save();renderDocuments();renderRecent();showPreview(doc);
-}
-function renderDocuments(){
- var box=$("documentsList");if(!box)return;
- var list=state.documents.filter(function(d){return !state.docTab||d.type===state.docTab});
- box.innerHTML=list.length?list.map(function(d){return '<div class="list-row"><button type="button" class="doc-open" data-preview-id="'+d.id+'"><span><strong>'+esc(d.number)+'</strong><small>'+esc(d.customer.name||"No customer")+'</small></span><strong>'+esc(money(d.total))+'</strong></button></div>'}).join(""):'<div class="empty-state">No '+esc(state.docTab||"")+' documents yet.</div>';
-}
-function renderRecent(){
- var box=$("recentList");if(!box)return;
- var list=state.documents.slice(0,4);
- box.innerHTML=list.length?list.map(function(d){return '<div class="list-row"><button type="button" class="doc-open" data-preview-id="'+d.id+'"><span><strong>'+esc(d.number)+'</strong><small>'+esc(d.type)+' · '+esc(d.customer.name||"No customer")+'</small></span><strong>'+esc(money(d.total))+'</strong></button></div>'}).join(""):'<div class="empty-state">No documents yet. Your latest slips will appear here.</div>';
-}
-function renderCustomers(){
- var box=$("customerList");if(!box)return;
- box.innerHTML=state.customers.length?state.customers.map(function(c,i){return '<div class="list-row"><span>'+esc(c.name||c)+'</span><button data-delete-customer="'+i+'">Delete</button></div>'}).join(""):'<div class="empty-state">No customers saved yet.</div>';
-}
-function previewHtml(d){
- var b=d.business||{},c=d.customer||{},title=d.type==="receipt"?"RECEIPT":d.type==="invoice"?"INVOICE":"QUOTE";
- var logo=b.logo?'<img class="paper-logo" src="'+b.logo+'" alt="">':"";
- var rows=(d.items||[]).map(function(it){return '<tr><td>'+esc(it.name||"Item / service")+'</td><td class="num">'+esc(it.qty||1)+'</td><td class="num">'+esc(money(it.price))+'</td><td class="num">'+esc(money((Number(it.qty)||0)*(Number(it.price)||0)))+'</td></tr>'}).join("");
- return '<div class="paper-head"><div>'+logo+'<h2>'+esc(b.name||"Your Business")+'</h2><p>'+esc(b.address||"")+'</p><p>'+esc(b.phone||"")+(b.email?" · "+esc(b.email):"")+'</p>'+(b.tin?'<p>TIN: '+esc(b.tin)+'</p>':"")+(b.reg?'<p>RC/BN: '+esc(b.reg)+'</p>':"")+'</div><div class="doc-title"><strong>'+title+'</strong><span>'+esc(d.number)+'</span><span>'+new Date(d.date).toLocaleDateString()+'</span></div></div>'+
- '<div class="paper-customer"><strong>'+(d.type==="receipt"?"Received from":"Bill to")+'</strong><p>'+esc(c.name||"Walk-in customer")+'</p>'+(c.phone?'<span>'+esc(c.phone)+'</span>':"")+(c.address?'<span>'+esc(c.address)+'</span>':"")+'</div>'+
- '<table><thead><tr><th>Item / Service</th><th>Qty</th><th>Unit</th><th>Amount</th></tr></thead><tbody>'+rows+'</tbody></table>'+
- '<div class="paper-totals"><div><span>Subtotal</span><strong>'+money(d.subtotal)+'</strong></div><div><span>Discount</span><strong>'+money(d.discount)+'</strong></div><div><span>Tax / VAT</span><strong>'+money(d.tax)+'</strong></div><div class="total-line"><span>Total</span><strong>'+money(d.total)+'</strong></div><p>'+esc(amountWords(d.total))+'</p></div>'+
- (d.paymentMethod?'<p><strong>Payment method:</strong> '+esc(d.paymentMethod)+(d.paymentStatus?' · '+esc(d.paymentStatus):"")+'</p>':"")+
- (d.po?'<p><strong>PO:</strong> '+esc(d.po)+'</p>':"")+(d.reference?'<p><strong>Reference:</strong> '+esc(d.reference)+'</p>':"")+
- (d.notes?'<div class="paper-notes"><strong>Notes</strong><p>'+esc(d.notes)+'</p></div>':"")+
- '<div class="paper-footer">Thank you for your business.</div>'+(b.signature?'<div class="paper-signature"><img src="'+b.signature+'" alt="Signature"><span>Authorized signature</span></div>':"");
-}
-function showPreview(d){
- lastPreview=d;$("previewPaper").innerHTML=previewHtml(d);$("previewModal").classList.add("show");$("previewModal").setAttribute("aria-hidden","false");
-}
-function closePreview(){$("previewModal").classList.remove("show");$("previewModal").setAttribute("aria-hidden","true")}
-function printPdf(){
- if(!lastPreview)return;
- var w=window.open("","_blank");if(!w){alert("Allow pop-ups to save the PDF.");return}
- w.document.write('<!doctype html><html><head><title>'+esc(lastPreview.number)+'</title><style>body{font-family:Arial,sans-serif;margin:30px;color:#17201b}.paper{max-width:760px;margin:auto}.paper-head{display:flex;justify-content:space-between;border-bottom:2px solid #17201b;padding-bottom:20px}.doc-title{text-align:right}.doc-title strong{display:block;font-size:25px}.paper-customer{padding:18px 0}.paper-customer p{margin:5px 0;font-weight:700}.paper-customer span{display:block;font-size:13px;color:#555}table{width:100%;border-collapse:collapse}th,td{padding:10px 7px;border-bottom:1px solid #ddd;text-align:left}.num{text-align:right}.paper-totals{margin:22px 0 0 auto;max-width:330px}.paper-totals div{display:flex;justify-content:space-between;padding:5px}.total-line{border-top:2px solid #17201b;margin-top:7px;padding-top:10px;font-size:19px}.paper-totals p{font-size:13px}.paper-notes{margin-top:20px;padding:12px;background:#f5f6f5}.paper-footer{text-align:center;margin-top:35px;font-size:13px;color:#666}@media print{button{display:none}}</style></head><body><div class="paper">'+previewHtml(lastPreview)+'</div><script>window.onload=function(){window.print()}<\/script></body></html>');w.document.close()
-}
-function whatsapp(){
- if(!lastPreview)return;
- var d=lastPreview,b=d.business||{},c=d.customer||{};
- var msg="Hello "+(c.name||"")+",\n\nPlease find your "+d.type+" "+d.number+" from "+(b.name||"our business")+".\nTotal: "+money(d.total)+"\n\nThank you.";
- window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
-}
-document.addEventListener("click",function(ev){
- var nav=ev.target.closest("[data-screen]");if(nav){ev.preventDefault();screen(nav.dataset.screen);return}
- var create=ev.target.closest("[data-create]");if(create){ev.preventDefault();editor(create.dataset.create);return}
- var type=ev.target.closest("[data-editor-type]");if(type){ev.preventDefault();editor(type.dataset.editorType);return}
- var tab=ev.target.closest("[data-doc-tab]");if(tab){state.docTab=tab.dataset.docTab;document.querySelectorAll("[data-doc-tab]").forEach(function(x){x.classList.toggle("active",x===tab)});renderDocuments();save();return}
- var toggle=ev.target.closest("[id$=Toggle]");if(toggle){var map={businessToggle:"businessDetails",customerToggle:"customerDetails",documentDetailsToggle:"documentDetails"};var body=$(map[toggle.id]);if(body)body.classList.toggle("open");return}
- if(ev.target.closest("#addItem")){state.items.push({name:"",qty:1,price:""});renderItems();return}
- var rem=ev.target.closest("[data-remove]");if(rem){state.items.splice(Number(rem.dataset.remove),1);if(!state.items.length)state.items.push({name:"",qty:1,price:""});renderItems();calculateTotal();return}
- if(ev.target.closest("#saveDocument")){saveDocument();return}
- if(ev.target.closest("#saveBusinessProfile")){saveBusiness();return}
- if(ev.target.closest("#downloadPdf")){printPdf();return}
- if(ev.target.closest("#shareWhatsApp")){whatsapp();return}
- if(ev.target.closest("[data-close-preview]")){closePreview();return}
- var pv=ev.target.closest("[data-preview-id]");if(pv){var found=state.documents.find(function(d){return String(d.id)===String(pv.dataset.previewId)});if(found)showPreview(found);return}
- if(ev.target.closest("#addCustomer")){var v=$("newCustomer")?.value.trim();if(v){state.customers.push({name:v});$("newCustomer").value="";save();renderCustomers()}return}
- var del=ev.target.closest("[data-delete-customer]");if(del){state.customers.splice(Number(del.dataset.deleteCustomer),1);save();renderCustomers();return}
-});
-document.addEventListener("input",function(ev){var t=ev.target;if(t.dataset.item){state.items[Number(t.dataset.index)][t.dataset.item]=t.value;calculateTotal()}if(t.id==="discount"||t.id==="tax")calculateTotal()});
-document.addEventListener("change",function(ev){if(ev.target.id==="settingsCurrency"){state.business.currency=ev.target.value;save();calculateTotal()}});
-function init(){fillBusiness();renderDocuments();renderRecent();renderCustomers();screen(state.activeScreen||"home")}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){toast("Storage is full. Try a smaller logo.");}}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(x){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[x]})}
+function money(n){var c=state.business.currency||"NGN";try{return new Intl.NumberFormat("en-NG",{style:"currency",currency:c}).format(Number(n)||0)}catch(e){return c+" "+(Number(n)||0).toFixed(2)}}
+function numberWords(n){n=Math.floor(Number(n)||0);var o=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"],t=["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];function u(x){var s="";if(x>=100){s+=o[Math.floor(x/100)]+" hundred";x%=100;if(x)s+=" and "}if(x>=20){s+=t[Math.floor(x/10)];if(x%10)s+="-"+o[x%10]}else if(x)s+=o[x];return s||"zero"}if(!n)return"zero";var a=[];[[1e9,"billion"],[1e6,"million"],[1e3,"thousand"],[1,""]].forEach(function(v){if(n>=v[0]){var q=Math.floor(n/v[0]);a.push(u(q)+" "+v[1]);n%=v[0]}});return a.join(" ")}
+function amountWords(n){var names={NGN:["Naira","Kobo"],USD:["Dollar","Cents"],GBP:["Pound","Pence"],EUR:["Euro","Cents"],GHS:["Cedi","Pesewas"],KES:["Shilling","Cents"]};var x=names[state.business.currency]||[state.business.currency,"Cents"],whole=Math.floor(Number(n)||0),minor=Math.round(((Number(n)||0)-whole)*100);return numberWords(whole)+" "+x[0]+(minor?" and "+numberWords(minor)+" "+x[1]:"")+" Only"}
+function toast(m){var t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(window.__toast);window.__toast=setTimeout(function(){t.classList.remove("show")},2200)}
+function screen(name){document.querySelectorAll(".screen").forEach(function(x){x.classList.remove("active")});var e=$(name+"Screen");if(e)e.classList.add("active");document.querySelectorAll(".nav-item").forEach(function(x){x.classList.toggle("active",x.dataset.screen===name)});state.activeScreen=name;save();scrollTo(0,0)}
+function nextNumber(type){return(type==="receipt"?"RCT":type==="invoice"?"INV":"QUO")+"-"+String(state.counters[type]||1).padStart(4,"0")}
+function fillBusiness(){var b=state.business||{};var m={settingsBusinessName:"name",settingsBusinessPhone:"phone",settingsBusinessEmail:"email",settingsBusinessAddress:"address",settingsBusinessTin:"tin",settingsBusinessReg:"reg",settingsCurrency:"currency",settingsAccent:"accent"};Object.keys(m).forEach(function(id){if($(id))$(id).value=b[m[id]]||$(id).value||""});$("businessHeader").textContent=b.name||"Business workspace";$("settingsBusinessPreview").textContent=b.name||"Your business";var lp=$("logoPreview");if(b.logo){lp.innerHTML='<img src="'+b.logo+'" alt="">'}else lp.textContent=(b.name||"S").charAt(0).toUpperCase();document.documentElement.style.setProperty("--accent",b.accent||"#0d6b4d")}
+function fileData(input,done){var f=input&&input.files&&input.files[0];if(!f){done("");return}if(f.size>1500000){toast("Please use an image under 1.5MB.");input.value="";done("");return}var r=new FileReader();r.onload=function(){done(r.result)};r.readAsDataURL(f)}
+function saveBusiness(){var b={name:$("settingsBusinessName").value.trim(),phone:$("settingsBusinessPhone").value.trim(),email:$("settingsBusinessEmail").value.trim(),address:$("settingsBusinessAddress").value.trim(),tin:$("settingsBusinessTin").value.trim(),reg:$("settingsBusinessReg").value.trim(),currency:$("settingsCurrency").value,accent:$("settingsAccent").value,logo:state.business.logo||"",signature:state.business.signature||""};fileData($("settingsBusinessLogo"),function(l){fileData($("settingsBusinessSignature"),function(s){if(l)b.logo=l;if(s)b.signature=s;state.business=b;save();fillBusiness();toast("Business profile saved.");})})}
+function editor(type){state.editorType=type;state.items=[{name:"",qty:1,price:""}];$("editorLabel").textContent="New "+type;$("saveType").textContent=type;$("documentNumber").value=nextNumber(type);document.querySelectorAll("[data-editor-type]").forEach(function(x){x.classList.toggle("active",x.dataset.editorType===type)});screen("editor");fillBusiness();renderItems();calculateTotal()}
+function renderItems(){var box=$("items");box.innerHTML=state.items.map(function(it,i){return'<div class="item-row"><input data-item="name" data-index="'+i+'" placeholder="Item or service" value="'+esc(it.name)+'"><input data-item="qty" data-index="'+i+'" type="number" min="1" value="'+(it.qty||1)+'"><input data-item="price" data-index="'+i+'" inputmode="decimal" placeholder="0.00" value="'+esc(it.price)+'"><button class="remove-item" data-remove="'+i+'">×</button></div>'}).join("")}
+function calculateTotal(){var sub=state.items.reduce(function(a,it){return a+(Number(it.qty)||0)*(Number(it.price)||0)},0),dis=Number($("discount").value)||0,tax=Number($("tax").value)||0,total=Math.max(0,sub-dis+tax);$("subtotal").textContent=money(sub);$("total").textContent=money(total);$("discountCurrency").textContent=(money(0).replace(/[0-9.,\s]/g,"")||"₦");$("taxCurrency").textContent=(money(0).replace(/[0-9.,\s]/g,"")||"₦");$("amountWords").textContent=amountWords(total);return{sub:sub,discount:dis,tax:tax,total:total}}
+function saveDocument(){var type=state.editorType,c=calculateTotal(),d={id:Date.now(),type:type,number:$("documentNumber").value,date:new Date().toISOString(),business:Object.assign({},state.business),customer:{name:$("customerNameQuick").value.trim(),phone:$("customerPhone").value.trim(),email:$("customerEmail").value.trim(),address:$("customerAddress").value.trim(),tin:$("customerTin").value.trim()},items:JSON.parse(JSON.stringify(state.items)),po:$("poNumber").value.trim(),reference:$("referenceNumber").value.trim(),dueDate:$("dueDate").value,paymentMethod:$("paymentMethod").value,paymentStatus:$("paymentStatus").value,notes:$("notes").value.trim(),subtotal:c.sub,discount:c.discount,tax:c.tax,total:c.total};if(!d.items.some(function(x){return x.name&&Number(x.price)>0})){toast("Add at least one item with a price.");return}state.documents.unshift(d);state.counters[type]=(state.counters[type]||1)+1;save();renderAll();showPreview(d)}
+function renderAll(){renderRecent();renderDocuments();renderCustomers();renderStock();updateStats()}
+function updateStats(){var total=state.documents.reduce(function(a,d){return a+(Number(d.total)||0)},0);$("statDocuments").textContent=state.documents.length;$("statCustomers").textContent=state.customers.length;$("statSales").textContent=money(total)}
+function renderRecent(){var b=$("recentList"),l=state.documents.slice(0,5);b.classList.toggle("empty",!l.length);b.innerHTML=l.length?l.map(docRow).join(""):"No documents yet. Your latest work will appear here."}
+function docRow(d){return'<div class="doc-row"><button class="doc-open" data-preview-id="'+d.id+'"><span class="doc-type '+d.type+'">'+d.type.charAt(0).toUpperCase()+'</span><span class="doc-main"><b>'+esc(d.number)+'</b><small>'+esc(d.customer.name||"Walk-in customer")+' · '+new Date(d.date).toLocaleDateString()+'</small></span><strong>'+esc(money(d.total))+'</strong><i>›</i></button></div>'}
+function renderDocuments(){var b=$("documentsList"),q=($("documentSearch").value||"").toLowerCase(),f=$("documentFilter").value,l=state.documents.filter(function(d){return(f==="all"||d.type===f)&&((d.number+" "+(d.customer.name||"")).toLowerCase().indexOf(q)>=0)});b.classList.toggle("empty",!l.length);b.innerHTML=l.length?l.map(docRow).join(""):"No matching documents."}
+function renderCustomers(){var b=$("customerList");b.classList.toggle("empty",!state.customers.length);b.innerHTML=state.customers.length?state.customers.map(function(c,i){return'<div class="customer-row"><span class="avatar-mini">'+esc((c.name||"C").charAt(0).toUpperCase())+'</span><span class="customer-info"><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"Saved customer")+'</small></span><button data-delete-customer="'+i+'">Delete</button></div>'}).join(""):"No customers saved yet."}
+function renderStock(){var b=$("stockList");b.innerHTML=state.stock.map(function(s,i){var pct=Math.min(100,Math.max(8,(Number(s.qty)||0)/100*100));return'<div class="stock-card"><div><b>'+esc(s.name)+'</b><small>'+esc(s.unit)+'</small></div><strong>'+esc(s.qty)+'</strong><span class="stock-bar"><i style="width:'+pct+'%"></i></span></div>'}).join("")}
+function previewHtml(d){var b=d.business||{},c=d.customer||{},title=d.type.toUpperCase(),rows=(d.items||[]).map(function(it){return'<tr><td>'+esc(it.name||"Item / service")+'</td><td>'+esc(it.qty||1)+'</td><td>'+esc(money(it.price))+'</td><td>'+esc(money((Number(it.qty)||0)*(Number(it.price)||0)))+'</td></tr>'}).join("");return'<div class="paper-header"><div class="paper-brand">'+(b.logo?'<img src="'+b.logo+'">':"")+'<h2>'+esc(b.name||"Your Business")+'</h2><p>'+esc(b.address||"")+'</p><p>'+esc(b.phone||"")+(b.email?" · "+esc(b.email):"")+'</p>'+(b.tin?'<p>TIN: '+esc(b.tin)+'</p>':"")+(b.reg?'<p>RC/BN: '+esc(b.reg)+'</p>':"")+'</div><div class="paper-meta"><strong>'+title+'</strong><span>'+esc(d.number)+'</span><span>'+new Date(d.date).toLocaleDateString()+'</span>'+(d.dueDate?'<span>Due '+esc(d.dueDate)+'</span>':"")+'</div></div><div class="bill-grid"><div><small>'+(d.type==="receipt"?"RECEIVED FROM":"BILL TO")+'</small><b>'+esc(c.name||"Walk-in customer")+'</b><span>'+esc(c.address||"")+'</span><span>'+esc(c.phone||"")+'</span></div><div><small>REFERENCE</small><b>'+esc(d.po||d.reference||"—")+'</b><span>'+(d.paymentMethod?esc(d.paymentMethod):"Payment method —")+'</span><span>'+(d.paymentStatus?esc(d.paymentStatus):"")+'</span></div></div><table><thead><tr><th>Description</th><th>Qty</th><th>Unit price</th><th>Amount</th></tr></thead><tbody>'+rows+'</tbody></table><div class="paper-bottom"><div class="paper-notes">'+(d.notes?'<b>Notes / terms</b><p>'+esc(d.notes)+'</p>':'<b>Thank you for your business.</b><p>We appreciate your patronage.</p>')+'</div><div class="paper-totals"><div><span>Subtotal</span><b>'+money(d.subtotal)+'</b></div>'+(d.discount?'<div><span>Discount</span><b>−'+money(d.discount)+'</b></div>':"")+(d.tax?'<div><span>Tax / VAT</span><b>'+money(d.tax)+'</b></div>':"")+'<div class="paper-total"><span>TOTAL</span><b>'+money(d.total)+'</b></div><p>'+esc(amountWords(d.total))+'</p></div></div>'+(b.signature?'<div class="signature"><img src="'+b.signature+'"><span>Authorized signature</span></div>':"")}
+function showPreview(d){lastPreview=d;$("previewPaper").innerHTML=previewHtml(d);$("previewModal").classList.add("show");$("previewModal").setAttribute("aria-hidden","false")}
+function closeModal(id){$(id).classList.remove("show");$(id).setAttribute("aria-hidden","true")}
+function printPdf(){if(!lastPreview)return;var w=window.open("","_blank");if(!w){toast("Allow pop-ups to save the PDF.");return}var css=document.querySelector("link[href='styles.css']")?"styles.css":"";w.document.write('<!doctype html><html><head><title>'+esc(lastPreview.number)+'</title><link rel="stylesheet" href="'+css+'"><style>body{background:white!important}.paper{box-shadow:none!important;max-width:820px!important;margin:0 auto!important}@media print{body{margin:0}.paper{width:100%;padding:28px!important}}</style></head><body><div class="paper">'+previewHtml(lastPreview)+'</div><script>window.onload=function(){setTimeout(function(){window.print()},250)}<\/script></body></html>');w.document.close()}
+function whatsapp(){if(!lastPreview)return;var d=lastPreview,b=d.business||{},c=d.customer||{};window.open("https://wa.me/?text="+encodeURIComponent("Hello "+(c.name||"")+",\n\nPlease find your "+d.type+" "+d.number+" from "+(b.name||"our business")+".\nTotal: "+money(d.total)+"\n\nThank you."),"_blank")}
+function openCustomers(){var b=$("customerChoices");b.innerHTML=state.customers.length?state.customers.map(function(c,i){return'<button class="choice" data-pick-customer="'+i+'"><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"")+'</small></button>'}).join(""):'<p class="empty">No saved customers yet.</p>';$("customerModal").classList.add("show")}
+document.addEventListener("click",function(e){var n=e.target.closest("[data-screen]");if(n){screen(n.dataset.screen);return}var c=e.target.closest("[data-create]");if(c){editor(c.dataset.create);return}var et=e.target.closest("[data-editor-type]");if(et){editor(et.dataset.editorType);return}if(e.target.closest("#addItem")){state.items.push({name:"",qty:1,price:""});renderItems();return}var r=e.target.closest("[data-remove]");if(r){state.items.splice(Number(r.dataset.remove),1);if(!state.items.length)state.items.push({name:"",qty:1,price:""});renderItems();calculateTotal();return}if(e.target.closest("#saveDocument")){saveDocument();return}if(e.target.closest("#saveBusinessProfile")){saveBusiness();return}if(e.target.closest("#downloadPdf")){printPdf();return}if(e.target.closest("#shareWhatsApp")){whatsapp();return}if(e.target.closest("[data-close-preview]")){closeModal("previewModal");return}if(e.target.closest("[data-close-customer]")){closeModal("customerModal");return}var pv=e.target.closest("[data-preview-id]");if(pv){var d=state.documents.find(function(x){return String(x.id)===String(pv.dataset.previewId)});if(d)showPreview(d);return}if(e.target.closest("#addCustomer")){var v=$("newCustomer").value.trim();if(v){state.customers.unshift({name:v});$("newCustomer").value="";save();renderAll();toast("Customer saved.")}return}var del=e.target.closest("[data-delete-customer]");if(del){state.customers.splice(Number(del.dataset.deleteCustomer),1);save();renderCustomers();updateStats();return}if(e.target.closest("#pickCustomer")){openCustomers();return}var pick=e.target.closest("[data-pick-customer]");if(pick){var cc=state.customers[Number(pick.dataset.pickCustomer)];$("customerNameQuick").value=cc.name||"";$("customerPhone").value=cc.phone||"";closeModal("customerModal");return}if(e.target.closest("#addStock")){var name=prompt("Product name");if(name){var q=Number(prompt("Starting quantity")||0);state.stock.push({name:name,unit:"Units",qty:q});save();renderStock();toast("Product added.")}}});
+document.addEventListener("input",function(e){var t=e.target;if(t.dataset.item){state.items[Number(t.dataset.index)][t.dataset.item]=t.value;calculateTotal()}if(t.id==="discount"||t.id==="tax")calculateTotal();if(t.id==="documentSearch")renderDocuments()});
+document.addEventListener("change",function(e){if(e.target.id==="documentFilter")renderDocuments();if(e.target.id==="settingsCurrency"||e.target.id==="settingsAccent"){state.business.currency=$("settingsCurrency").value;state.business.accent=$("settingsAccent").value;save();calculateTotal()}});
+function init(){fillBusiness();renderAll();screen("home")}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
-</script>>
+</script>
 </body>
 </html>
