@@ -474,8 +474,33 @@ input:focus,select:focus,textarea:focus{
 }
 
 @media(max-width:799px){
-  .editor-card{grid-template-columns:1fr}
-  .totals-card{position:static}
+  /* MOBILE EDITOR: force a true single-column flow.
+     Do not allow the desktop editor grid to survive on phones/tablets. */
+  html,body{overflow-x:hidden}
+  .screen{width:100%;max-width:100%;min-width:0}
+  .editor-card{
+    display:flex!important;
+    flex-direction:column!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    gap:12px!important;
+  }
+  .editor-card>*{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    grid-column:auto!important;
+  }
+  .type-switch{order:0}
+  .form-section:nth-of-type(1){order:1}
+  .form-section:nth-of-type(2){order:2}
+  .totals-card{order:3;position:static!important}
+  .compact-form{order:4}
+  .primary-button{order:5}
+  .privacy-note{order:6}
+  .item-head,.item-row{width:100%;min-width:0}
+  .item-row input{min-width:0}
   .customer-info{grid-template-columns:1fr}
   .stock-grid{grid-template-columns:1fr 1fr}
 }
