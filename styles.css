@@ -864,3 +864,16 @@ input:focus,select:focus,textarea:focus{
   .expense-form .primary-button{grid-column:auto}
   .paper-receipt,.paper-invoice,.paper-quote{border-top-width:5px}
 }
+
+.secondary-action,.danger-button{
+  min-height:52px;border:1px solid #d7dbd7;border-radius:15px;
+  padding:0 18px;font-weight:800;font-size:14px;background:#fff;
+}
+.secondary-action{color:#4659b8;background:#f2f4ff;border-color:#d9def8}
+.danger-button{color:#b23d35;background:#fff3f1;border-color:#efd1ce}
+button[data-editor-type="receipt"].active{color:#0b7656!important}
+button[data-editor-type="invoice"].active{color:#4d63c9!important}
+button[data-editor-type="quote"].active{color:#a56d16!important}
+@media(max-width:600px){
+  .preview-actions .secondary-action,.preview-actions .danger-button{width:100%}
+}
