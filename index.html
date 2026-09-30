@@ -321,7 +321,7 @@ function sendPaymentReminder(){
 function duplicateDocument(){
   if(!lastPreview)return;
   var d=JSON.parse(JSON.stringify(lastPreview));d.id=Date.now();d.number=nextNumber(d.type);d.date=new Date().toISOString();d.paymentStatus=d.type==="receipt"?"Paid":"Pending";d.stockApplied=false;
-  state.documents.unshift(d);state.counters[d.type]=(state.counters[d.type]||1)+1;save();renderAll();showPreview(d);toast("Document duplicated.");
+  state.documents.unshift(d);state.counters[d.type]=(state.counters[d.type]||1)+1;applyStockMovement(d);save();renderAll();showPreview(d);toast("Document duplicated.");
 }
 function markPaid(){
   if(!lastPreview)return;
