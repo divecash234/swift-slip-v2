@@ -877,3 +877,43 @@ button[data-editor-type="quote"].active{color:#a56d16!important}
 @media(max-width:600px){
   .preview-actions .secondary-action,.preview-actions .danger-button{width:100%}
 }
+
+/* =========================================================
+   Business workflow polish — alerts, customer CRM, stock tools,
+   backup controls and mobile-safe actions
+   ========================================================= */
+.business-alerts{display:grid;gap:9px;margin:14px 0 18px}
+.alert-card{width:100%;border:1px solid var(--line);border-radius:17px;padding:13px 14px;display:grid;grid-template-columns:38px minmax(0,1fr) 18px;gap:10px;align-items:center;text-align:left;background:#fff}
+.alert-card>span{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-weight:900}
+.alert-card b{display:block;font-size:12px}.alert-card small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.alert-card i{font-style:normal;font-size:18px}
+.alert-warn{background:#fffaf1;border-color:#f1dfbd}.alert-warn>span{background:#ffedc9;color:#a96a12}.alert-warn i{color:#a96a12}
+.alert-danger{background:#fff7f5;border-color:#efd6d1}.alert-danger>span{background:#ffe4df;color:#b43d31}.alert-danger i{color:#b43d31}
+
+.customer-search{margin-bottom:12px}
+.customer-row{display:grid;grid-template-columns:42px minmax(0,1fr) auto auto;gap:9px;align-items:center;padding:13px 0;border-top:1px solid #e7e9e6}
+.customer-row:first-child{border-top:0}
+.customer-info{min-width:0}.customer-info b,.customer-info small{display:block}.customer-info b{font-size:13px}.customer-info small{font-size:10px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini{min-height:36px!important;height:36px!important;padding:0 11px!important;border-radius:11px!important;font-size:11px!important}
+
+.stock-actions{display:flex;gap:7px;margin-top:13px;padding-top:11px;border-top:1px solid #e7ebe8}
+.stock-actions .secondary-action{color:#0b7656;background:#f1f8f5;border-color:#d3e9df}
+.stock-actions .danger-button{background:#fff5f3}
+
+.report-period{display:flex;justify-content:flex-end;align-items:center;gap:9px;margin:-2px 0 12px}
+.report-period span{font-size:11px;color:var(--muted)}
+.report-period select{min-height:40px;padding:0 12px;margin:0;width:auto;font-size:12px}
+
+.data-tools{margin-top:14px}
+.data-tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.data-tool-grid .secondary-action{min-height:50px}
+
+@media(max-width:600px){
+  .customer-row{grid-template-columns:40px minmax(0,1fr);gap:8px}
+  .customer-row .mini{grid-row:2;justify-self:stretch}
+  .customer-row .danger-button{grid-column:2;grid-row:2}
+  .report-period{justify-content:space-between}
+  .report-period select{flex:1}
+  .data-tool-grid{grid-template-columns:1fr}
+  .stock-actions{flex-direction:column}
+  .stock-actions .mini{width:100%}
+}
