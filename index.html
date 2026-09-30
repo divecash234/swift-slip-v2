@@ -213,6 +213,7 @@
 <script>
 (function(){
 "use strict";
+if(window.navigator.maxTouchPoints>0 && Math.min(window.innerWidth||9999,window.screen&&window.screen.width||9999)<=1200){document.documentElement.classList.add("force-mobile");}
 var KEY="swiftSlipV2";
 var state={activeScreen:"home",editorType:"receipt",docTab:"all",counters:{receipt:1,invoice:1,quote:1},documents:[],customers:[],expenses:[],stock:[{name:"AGO",unit:"Litres",qty:0,price:0,low:10},{name:"Fuel",unit:"Litres",qty:0,price:0,low:10}],business:{name:"",phone:"",email:"",address:"",tin:"",reg:"",currency:"NGN",accent:"#0d6b4d",logo:"",signature:"",template:"classic",defaultPayment:"",footer:"Thank you for your business."},items:[]};
 var lastPreview=null;
